@@ -270,8 +270,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 <script>
+const VERCEL_URL='https://arise-app-six.vercel.app';
 const tg=window.Telegram&&window.Telegram.WebApp;
-if(tg){tg.ready();tg.expand();const u=tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u){const n=(u.first_name||'')+' '+(u.last_name||'');const h=u.username?'@'+u.username:'@usuario';const i=((u.first_name||'?')[0]+(u.last_name?u.last_name[0]:'')).toUpperCase();document.getElementById('uname').textContent=n.trim();document.getElementById('uhandle').textContent=h;document.getElementById('av').textContent=i;document.getElementById('invite-link').textContent='t.me/ariseapp_bot?start=ref_'+u.id;}}
+if(tg){tg.ready();tg.expand();const u=tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u){const n=(u.first_name||'')+' '+(u.last_name||'');const h=u.username?'@'+u.username:'@usuario';const i=((u.first_name||'?')[0]+(u.last_name?u.last_name[0]:'')).toUpperCase();document.getElementById('uname').textContent=n.trim();document.getElementById('uhandle').textContent=h;document.getElementById('av').textContent=i;document.getElementById('invite-link').textContent='t.me/ariseapp_bot?start=ref_'+u.id;
+// Busca foto de perfil
+const avEl=document.getElementById('av');
+fetch(VERCEL_URL+'/photo?user_id='+u.id)
+  .then(r=>{if(r.ok)return r.blob();throw new Error('no photo');})
+  .then(blob=>{const url=URL.createObjectURL(blob);avEl.style.backgroundImage='url('+url+')';avEl.style.backgroundSize='cover';avEl.style.backgroundPosition='center';avEl.textContent='';})
+  .catch(()=>{avEl.textContent=i;});
+}}
 const tmap={h:'th',q:'tq',r:'tr',p:'tp'},nmap={h:'nh',q:'nq',r:'nr',p:'np'},pmap={h:'ph',q:'pq',r:'pr',p:'pp'};
 let cur='h';
 function st(t){document.getElementById(tmap[cur]).classList.remove('on');document.getElementById(nmap[cur]).classList.remove('on');document.getElementById(pmap[cur]).classList.remove('on');cur=t;document.getElementById(tmap[t]).classList.add('on');document.getElementById(nmap[t]).classList.add('on');document.getElementById(pmap[t]).classList.add('on');}
