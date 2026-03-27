@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Arise App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;padding-bottom:72px}
+:root{--bg:#f0f2f5;--card:#fff;--text:#0a0a0a;--sub:#888;--border:#e5e5e5;--green:#22c55e;--red:#ef4444;--blue:#2563eb}
+.hd{background:#fff;padding:20px 16px 16px;text-align:center;border-bottom:1px solid var(--border)}
+.av{width:64px;height:64px;border-radius:50%;background:#e8f5ec;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#22c55e}
+.uname{font-size:18px;font-weight:700;color:var(--text)}
+.uhandle{font-size:13px;color:var(--sub);margin-top:2px}
+.ulv{display:inline-flex;align-items:center;gap:5px;margin-top:7px;background:#e8f5ec;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:#22c55e}
+.hbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 16px 0}
+.hbtn{background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px;text-align:center;font-size:13px;font-weight:500;color:var(--text);cursor:pointer}
+.pills{display:flex;background:#fff;border-bottom:1px solid var(--border);padding:0 16px}
+.pill{flex:1;padding:13px 0;text-align:center;font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;border-bottom:2.5px solid transparent}
+.pill.on{color:#22c55e;border-bottom-color:#22c55e;font-weight:600}
+.tab{display:none;padding:12px 16px}.tab.on{display:block}
+.sl{font-size:11px;font-weight:600;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;margin:14px 0 8px}
+.sl:first-child{margin-top:0}
+.xcard{background:#fff;border-radius:14px;padding:16px;margin-bottom:4px}
+.xrow{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:11px}
+.xv{font-size:26px;font-weight:700;color:var(--text)}
+.xrk-l{font-size:11px;color:var(--sub);text-align:right}
+.xrk-v{font-size:20px;font-weight:700;color:#f7a800;text-align:right}
+.xbar-bg{height:6px;background:#e8e8e8;border-radius:3px;overflow:hidden;margin-bottom:5px}
+.xbar-fi{height:100%;background:#22c55e;border-radius:3px;width:0;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.xnt{font-size:11px;color:var(--sub);margin-bottom:13px}
+.xgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.xi{background:#f7f7f7;border-radius:10px;padding:10px 11px}
+.xi-l{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px}
+.xi-v{font-size:15px;font-weight:700;color:#22c55e;margin-top:2px}
+.movers{display:flex;flex-direction:column;gap:6px}
+.mc{background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.mc-l{display:flex;align-items:center;gap:10px}
+.mc-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
+.mc-name{font-size:13px;font-weight:600;color:var(--text)}
+.mc-pr{font-size:11px;color:var(--sub);margin-top:1px}
+.mc-pct{font-size:14px;font-weight:700}
+.up{color:#22c55e}.dn{color:#ef4444}
+.dtabs{display:flex;gap:8px;margin-bottom:16px}
+.dt{flex:1;background:#fff;border-radius:14px;padding:13px 10px;text-align:center;cursor:pointer;border:2px solid transparent}
+.dt.on{background:#0a0a0a;border-color:#0a0a0a}
+.dt-n{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#aaa}
+.dt.on .dt-n{color:#666}
+.dt-s{font-size:13px;font-weight:700;color:var(--sub);margin-top:3px}
+.dt.on .dt-s{color:#fff}
+.dt-dot{width:7px;height:7px;border-radius:50%;margin:6px auto 0}
+.done-dot{background:#22c55e}.pend-dot{background:#e5e5e5}.active-dot{background:#2563eb}
+.qcard{background:#fff;border-radius:18px;overflow:hidden;margin-bottom:10px}
+.qimg{width:100%;height:160px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border)}
+.qtop-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px}
+.qtimer-w{display:flex;align-items:center;gap:7px}
+.tring{width:38px;height:38px;border-radius:50%;border:2.5px solid #e5e5e5;border-top-color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#2563eb}
+.tring.done-g{border-color:#22c55e;border-top-color:#22c55e;color:#22c55e}
+.tring.done-r{border-color:#ef4444;border-top-color:#ef4444;color:#ef4444}
+.tsub{font-size:12px;color:var(--sub)}
+.xpbadge{background:#eff6ff;border-radius:20px;padding:5px 14px;font-size:13px;font-weight:700;color:#2563eb}
+.qq{font-size:17px;font-weight:700;color:var(--text);line-height:1.5;padding:0 16px 14px}
+.qopts{display:flex;flex-direction:column;gap:8px;padding:0 14px 16px}
+.qo{border-radius:14px;padding:14px 16px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:12px;border:2px solid var(--border);background:#f8f8f8;color:var(--text)}
+.ql{width:28px;height:28px;border-radius:9px;background:#e5e5e5;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#888;flex-shrink:0}
+.qo.correct{background:#0a0a0a;border-color:#0a0a0a;color:#fff}
+.qo.correct .ql{background:#22c55e;color:#fff}
+.qo.wrong{background:#fef2f2;border-color:#ef4444;color:#ef4444}
+.qo.wrong .ql{background:#ef4444;color:#fff}
+.qo.off{pointer-events:none}
+.qo.reveal-right{background:#0a0a0a;border-color:#0a0a0a;color:#fff}
+.qo.reveal-right .ql{background:#22c55e;color:#fff}
+.result-box{margin:0 14px 16px;border-radius:14px;padding:16px;display:none;align-items:center;gap:14px}
+.result-box.show{display:flex}
+.rb-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;color:#fff}
+.rb-title{font-size:16px;font-weight:800;margin-bottom:2px}
+.rb-sub{font-size:13px}
+.result-box.ok{background:#f0fdf4}
+.result-box.ok .rb-icon{background:#22c55e}
+.result-box.ok .rb-title{color:#15803d}
+.result-box.ok .rb-sub{color:#22c55e}
+.result-box.err{background:#fef2f2}
+.result-box.err .rb-icon{background:#ef4444}
+.result-box.err .rb-title{color:#b91c1c}
+.result-box.err .rb-sub{color:#ef4444}
+.qprog{display:flex;gap:5px;padding:0 16px 14px}
+.qd{flex:1;height:4px;border-radius:2px;background:#e5e5e5}
+.qd.done{background:#22c55e}.qd.active{background:#2563eb}
+.next-btn{margin:0 14px 16px;background:#0a0a0a;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;width:calc(100% - 28px);cursor:pointer;display:none}
+.next-btn.show{display:block}
+.done-card{background:#fff;border-radius:18px;padding:24px 16px;text-align:center}
+.done-ico{font-size:48px;margin-bottom:12px}
+.done-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
+.done-sub{font-size:14px;color:var(--sub);margin-bottom:20px}
+.done-xp{display:inline-block;background:#0a0a0a;color:#fff;border-radius:20px;padding:10px 28px;font-size:18px;font-weight:800}
+.done-next{font-size:12px;color:var(--sub);margin-top:10px}
+.rtimer{background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.rtl{font-size:12px;color:var(--sub)}
+.rtv{font-size:17px;font-weight:700;color:var(--text)}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bcard{border-radius:12px;padding:13px;border:1px solid transparent}
+.b1{background:#fffbea;border-color:#f0d060}.b2{background:#eaf5f0;border-color:#9fe1cb}
+.b3{background:#faeaf0;border-color:#d4537e}.b4{background:#f5f5f5;border-color:#ddd}
+.bpos{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.b1 .bpos{color:#c49a00}.b2 .bpos{color:#0f6e56}.b3 .bpos{color:#993356}.b4 .bpos{color:#888}
+.bval{font-size:16px;font-weight:800;color:var(--text)}
+.btype{font-size:10px;color:var(--sub);margin-top:2px}
+.rlist{background:#fff;border-radius:14px;overflow:hidden}
+.ri{display:flex;align-items:center;padding:11px 14px;gap:10px;border-bottom:1px solid var(--border)}
+.ri:last-child{border-bottom:none}
+.ri.me{background:#eaf5ec}
+.rip{font-size:12px;font-weight:700;color:var(--sub);width:16px;flex-shrink:0}
+.rip.g{color:#c49a00}.rip.s{color:#888}.rip.b{color:#a0522d}
+.riav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.riname{flex:1;font-size:13px;color:var(--text);font-weight:500}
+.ri.me .riname{font-weight:700}
+.rixp{font-size:11px;color:var(--sub)}
+.riinv{font-size:11px;color:#22c55e;font-weight:600;margin-left:4px}
+.phero{background:#fff;border-radius:14px;padding:16px;margin-bottom:4px}
+.pptabs{display:flex;background:#f0f2f5;border-radius:10px;padding:3px;gap:2px}
+.ppt{flex:1;padding:6px 2px;font-size:11px;font-weight:600;color:var(--sub);border-radius:8px;cursor:pointer;text-align:center}
+.ppt.on{background:#fff;color:#22c55e;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sc{background:#fff;border-radius:12px;padding:13px}
+.sc-l{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px}
+.sc-v{font-size:22px;font-weight:700;color:var(--text);margin-top:4px}
+.sc-s{font-size:10px;color:var(--sub);margin-top:2px}
+.icard{background:#fff;border-radius:12px;padding:14px}
+.irow{background:#f0f2f5;border-radius:8px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ilink-t{font-size:12px;color:var(--sub);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbtn{background:#22c55e;color:#fff;font-size:11px;font-weight:700;border-radius:7px;padding:6px 13px;cursor:pointer;border:none;white-space:nowrap}
+.bdg{display:inline-flex;align-items:center;background:#e8f5ec;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;color:#22c55e;margin:3px}
+.nb{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding:8px 0 12px;z-index:10}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;color:var(--sub)}
+.ni.on{color:#22c55e}
+.ni-lbl{font-size:10px;font-weight:500;color:inherit}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="av" id="av">JT</div>
+  <div class="uname" id="uname">Carregando...</div>
+  <div class="uhandle" id="uhandle">@usuario</div>
+  <div class="ulv">⭐ Nível 12 · 4.280 XP</div>
+  <div class="hbtns">
+    <div class="hbtn" onclick="st('r')">📊 Ranking</div>
+    <div class="hbtn" onclick="shareLink()">👥 Convidar</div>
+  </div>
+</div>
+<div class="pills">
+  <div class="pill on" id="ph" onclick="st('h')">Home</div>
+  <div class="pill" id="pq" onclick="st('q')">Quiz</div>
+  <div class="pill" id="pr" onclick="st('r')">Ranking</div>
+  <div class="pill" id="pp" onclick="st('p')">Perfil</div>
+</div>
+<div class="tab on" id="th">
+  <div class="sl">Seu XP esta semana</div>
+  <div class="xcard">
+    <div class="xrow">
+      <div><div style="font-size:11px;color:var(--sub);margin-bottom:3px">XP Total</div><div class="xv">4.280</div></div>
+      <div><div class="xrk-l">Ranking semanal</div><div class="xrk-v">#4</div></div>
+    </div>
+    <div class="xbar-bg"><div class="xbar-fi" id="xf"></div></div>
+    <div class="xnt">720 XP para o Nível 13</div>
+    <div class="xgrid">
+      <div class="xi"><div class="xi-l">Convites</div><div class="xi-v">+2.100</div></div>
+      <div class="xi"><div class="xi-l">Participação</div><div class="xi-v">+980</div></div>
+      <div class="xi"><div class="xi-l">Quiz diário</div><div class="xi-v">+750</div></div>
+      <div class="xi"><div class="xi-l">Streak</div><div class="xi-v">+450</div></div>
+    </div>
+  </div>
+  <div class="sl">Top movers · BingX Futuros</div>
+  <div class="movers" id="movers">
+    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#fff7e6;color:#f7931a">BTC</div><div><div class="mc-name">BTC/USDT</div><div class="mc-pr">$67.420</div></div></div><div class="mc-pct up">+4.2%</div></div>
+    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#f3eeff;color:#9945ff">SOL</div><div><div class="mc-name">SOL/USDT</div><div class="mc-pr">$174.80</div></div></div><div class="mc-pct up">+8.7%</div></div>
+    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#fceaea;color:#e53935">DOGE</div><div><div class="mc-name">DOGE/USDT</div><div class="mc-pr">$0.1843</div></div></div><div class="mc-pct dn">-6.3%</div></div>
+    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#eaf5ec;color:#22c55e">AVAX</div><div><div class="mc-name">AVAX/USDT</div><div class="mc-pr">$39.12</div></div></div><div class="mc-pct up">+11.4%</div></div>
+    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#fceaea;color:#e53935">ETH</div><div><div class="mc-name">ETH/USDT</div><div class="mc-pr">$3.241</div></div></div><div class="mc-pct dn">-3.1%</div></div>
+  </div>
+</div>
+<div class="tab" id="tq">
+  <div class="dtabs">
+    <div class="dt on" id="d1tab" onclick="setDay(1)"><div class="dt-n">Quiz 1</div><div class="dt-s" id="d1s">Ativo</div><div class="dt-dot active-dot" id="d1dot"></div></div>
+    <div class="dt" id="d2tab" onclick="setDay(2)"><div class="dt-n">Quiz 2</div><div class="dt-s" id="d2s">Pendente</div><div class="dt-dot pend-dot" id="d2dot"></div></div>
+  </div>
+  <div id="qview">
+    <div class="qcard">
+      <div class="qimg"><svg id="qsvg" width="100%" height="160" viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="qtop-bar">
+        <div class="qtimer-w"><div class="tring" id="tn">30</div><span class="tsub">segundos</span></div>
+        <div class="xpbadge" id="xpbadge">+50 XP</div>
+      </div>
+      <div class="qq" id="qq"></div>
+      <div class="qopts" id="qopts"></div>
+      <div class="result-box" id="rbox"><div class="rb-icon" id="rb-icon"></div><div><div class="rb-title" id="rb-title"></div><div class="rb-sub" id="rb-sub"></div></div></div>
+      <div class="qprog" id="qprog"></div>
+    </div>
+    <button class="next-btn" id="nbtn" onclick="nextQ()">Próxima pergunta →</button>
+  </div>
+  <div id="doneview" style="display:none">
+    <div class="done-card">
+      <div class="done-ico" id="done-ico">🎯</div>
+      <div class="done-title" id="done-title">Quiz concluído!</div>
+      <div class="done-sub" id="done-sub">Você acertou 0 de 4</div>
+      <div class="done-xp" id="done-xp">+0 XP</div>
+      <div class="done-next" id="done-next"></div>
+    </div>
+  </div>
+</div>
+<div class="tab" id="tr">
+  <div class="sl">Reset semanal</div>
+  <div class="rtimer"><div><div class="rtl">Reinicia em</div><div style="font-size:10px;color:var(--sub)">próxima segunda às 00:00</div></div><div class="rtv" id="rcd">--</div></div>
+  <div class="sl">Prêmios da semana</div>
+  <div class="bgrid">
+    <div class="bcard b1"><div class="bpos">1° lugar</div><div class="bval">$1.000</div><div class="btype">voucher trading</div></div>
+    <div class="bcard b2"><div class="bpos">2° lugar</div><div class="bval">$500</div><div class="btype">voucher trading</div></div>
+    <div class="bcard b3"><div class="bpos">3° lugar</div><div class="bval">2 aulas</div><div class="btype">acesso completo</div></div>
+    <div class="bcard b4"><div class="bpos">4° lugar</div><div class="bval">1 aula</div><div class="btype">acesso completo</div></div>
+  </div>
+  <div class="sl">Ranking desta semana</div>
+  <div class="rlist">
+    <div class="ri"><div class="rip g">1</div><div class="riav" style="background:#c49a00">CR</div><div class="riname">carlos.r</div><div class="rixp">3.820</div><div class="riinv">21 inv</div></div>
+    <div class="ri"><div class="rip s">2</div><div class="riav" style="background:#888">MF</div><div class="riname">m.ferreira</div><div class="rixp">3.410</div><div class="riinv">19 inv</div></div>
+    <div class="ri"><div class="rip b">3</div><div class="riav" style="background:#a0522d">TS</div><div class="riname">t.santos</div><div class="rixp">2.990</div><div class="riinv">15 inv</div></div>
+    <div class="ri me"><div class="rip">4</div><div class="riav" style="background:#22c55e">EU</div><div class="riname">você</div><div class="rixp">2.280</div><div class="riinv">12 inv</div></div>
+    <div class="ri"><div class="rip">5</div><div class="riav" style="background:#bbb">JP</div><div class="riname">j.pereira</div><div class="rixp">1.950</div><div class="riinv">10 inv</div></div>
+    <div class="ri"><div class="rip">6</div><div class="riav" style="background:#bbb">RL</div><div class="riname">r.lima</div><div class="rixp">1.640</div><div class="riinv">8 inv</div></div>
+  </div>
+</div>
+<div class="tab" id="tp">
+  <div class="phero">
+    <div class="pptabs">
+      <div class="ppt on" onclick="per(this,'h')">Hoje</div>
+      <div class="ppt" onclick="per(this,'s')">Semana</div>
+      <div class="ppt" onclick="per(this,'m')">Mês</div>
+      <div class="ppt" onclick="per(this,'t')">Total</div>
+    </div>
+  </div>
+  <div class="sgrid">
+    <div class="sc"><div class="sc-l">Convites</div><div class="sc-v" id="si">2</div><div class="sc-s" id="si-s">hoje</div></div>
+    <div class="sc"><div class="sc-l">XP ganho</div><div class="sc-v" id="sx">+320</div><div class="sc-s" id="sx-s">hoje</div></div>
+    <div class="sc"><div class="sc-l">Quiz</div><div class="sc-v" id="sq">1/1</div><div class="sc-s" id="sq-s">acerto hoje</div></div>
+    <div class="sc"><div class="sc-l">Posição</div><div class="sc-v" id="sp">#4</div><div class="sc-s" id="sp-s">semanal</div></div>
+  </div>
+  <div class="sl">Link de convite</div>
+  <div class="icard">
+    <div style="font-size:12px;color:var(--sub);margin-bottom:8px">Compartilhe e ganhe XP por cada amigo que entrar</div>
+    <div class="irow"><span class="ilink-t" id="invite-link">t.me/ariseapp_bot?start=ref_usuario</span><button class="cbtn" id="cbtn" onclick="cpy()">Copiar</button></div>
+  </div>
+  <div class="sl">Conquistas</div>
+  <div><span class="bdg">7 dias streak</span><span class="bdg">5 convites</span><span class="bdg">Quiz master</span><span class="bdg">Nível 12</span></div>
+</div>
+<div class="nb">
+  <div class="ni on" id="nh" onclick="st('h')">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 9L10 3L17 9V17H13V12H7V17H3V9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <span class="ni-lbl">Home</span>
+  </div>
+  <div class="ni" id="nq" onclick="st('q')">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 8C8 6.9 8.9 6 10 6C11.1 6 12 6.9 12 8C12 9.3 11 9.8 10.5 10.3C10.2 10.6 10 11 10 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="14" r=".9" fill="currentColor"/></svg>
+    <span class="ni-lbl">Quiz</span>
+  </div>
+  <div class="ni" id="nr" onclick="st('r')">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 17V12M8 17V8M12 17V10M16 17V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span class="ni-lbl">Ranking</span>
+  </div>
+  <div class="ni" id="np" onclick="st('p')">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 17C4 14 6.7 12 10 12C13.3 12 16 14 16 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span class="ni-lbl">Perfil</span>
+  </div>
+</div>
+<script>
+const tg=window.Telegram&&window.Telegram.WebApp;
+if(tg){tg.ready();tg.expand();const u=tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u){const n=(u.first_name||'')+' '+(u.last_name||'');const h=u.username?'@'+u.username:'@usuario';const i=((u.first_name||'?')[0]+(u.last_name?u.last_name[0]:'')).toUpperCase();document.getElementById('uname').textContent=n.trim();document.getElementById('uhandle').textContent=h;document.getElementById('av').textContent=i;document.getElementById('invite-link').textContent='t.me/ariseapp_bot?start=ref_'+u.id;}}
+const tmap={h:'th',q:'tq',r:'tr',p:'tp'},nmap={h:'nh',q:'nq',r:'nr',p:'np'},pmap={h:'ph',q:'pq',r:'pr',p:'pp'};
+let cur='h';
+function st(t){document.getElementById(tmap[cur]).classList.remove('on');document.getElementById(nmap[cur]).classList.remove('on');document.getElementById(pmap[cur]).classList.remove('on');cur=t;document.getElementById(tmap[t]).classList.add('on');document.getElementById(nmap[t]).classList.add('on');document.getElementById(pmap[t]).classList.add('on');}
+function shareLink(){const l=document.getElementById('invite-link').textContent;if(tg&&tg.openTelegramLink){tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(l)+'&text='+encodeURIComponent('Entre no Arise App e concorra a $1.000 em vouchers!'));}else{navigator.clipboard&&navigator.clipboard.writeText(l);}}
+function cpy(){const b=document.getElementById('cbtn');navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('invite-link').textContent);b.textContent='Copiado!';setTimeout(()=>b.textContent='Copiar',1500);}
+function ucd(){const now=new Date(),nm=new Date(now);const diff=(1+7-now.getDay())%7||7;nm.setDate(now.getDate()+diff);nm.setHours(0,0,0,0);const ms=nm-now,d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000);const el=document.getElementById('rcd');if(el)el.textContent=d+'d '+h+'h '+m+'m';}
+ucd();setInterval(ucd,60000);
+setTimeout(()=>{const f=document.getElementById('xf');if(f)f.style.width='85.6%';},400);
+const pd={h:{i:'2',x:'+320',q:'1/1',p:'#4',si:'hoje',sx:'hoje',sq:'acerto hoje',sp:'semanal'},s:{i:'12',x:'+2.280',q:'5/7',p:'#4',si:'semana',sx:'semana',sq:'acertos semana',sp:'semanal'},m:{i:'38',x:'+8.640',q:'19/28',p:'#3',si:'este mês',sx:'este mês',sq:'acertos mês',sp:'mensal'},t:{i:'87',x:'+21.400',q:'64/112',p:'#5',si:'total',sx:'acumulado',sq:'histórico',sp:'geral'}};
+function per(el,period){document.querySelectorAll('.ppt').forEach(t=>t.classList.remove('on'));el.classList.add('on');const d=pd[period];document.getElementById('si').textContent=d.i;document.getElementById('sx').textContent=d.x;document.getElementById('sq').textContent=d.q;document.getElementById('sp').textContent=d.p;document.getElementById('si-s').textContent=d.si;document.getElementById('sx-s').textContent=d.sx;document.getElementById('sq-s').textContent=d.sq;document.getElementById('sp-s').textContent=d.sp;}
+const quizzes={1:{xp:50,perguntas:[{pergunta:'Qual padrão de candle indica reversão de alta após tendência de baixa?',opcoes:['Doji','Evening Star','Hammer','Shooting Star'],certa:2,svg:drawHammer},{pergunta:'O que o gráfico abaixo está demonstrando?',opcoes:['Rompimento de resistência','Teste de suporte','Double Top','Consolidação lateral'],certa:1,svg:drawSupport},{pergunta:'Qual o padrão identificado no gráfico?',opcoes:['Tendência de alta','Tendência de baixa','Mercado lateral','Expansão de volatilidade'],certa:0,svg:drawUptrend},{pergunta:'O volume no rompimento indica:',opcoes:['Fraqueza compradora','Confirmação do movimento','Distribuição','Fakeout'],certa:1,svg:drawVolume}]},2:{xp:50,perguntas:[{pergunta:'O RSI em 78 indica que o ativo está:',opcoes:['Sobrevendido','Neutro','Sobrecomprado','Em tendência forte'],certa:2,svg:drawRSI},{pergunta:'Quando o preço cruza a média móvel de baixo pra cima, temos:',opcoes:['Sinal de venda','Golden Cross','Death Cross','Divergência'],certa:1,svg:drawMA},{pergunta:'O nível de Fibonacci mais importante como suporte é:',opcoes:['23.6%','50%','61.8%','78.6%'],certa:2,svg:drawFib},{pergunta:'O padrão gráfico abaixo é conhecido como:',opcoes:['Triângulo ascendente','Bull Flag','Canal de baixa','Cunha'],certa:1,svg:drawFlag}]}};
+function drawHammer(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">BTC/USDT · 4H</text><line x1="50" y1="120" x2="50" y2="50" stroke="#ef4444" stroke-width="1.5"/><rect x="43" y="72" width="14" height="28" fill="#ef4444" rx="2"/><line x1="50" y1="120" x2="50" y2="135" stroke="#ef4444" stroke-width="1.5"/><line x1="90" y1="110" x2="90" y2="45" stroke="#ef4444" stroke-width="1.5"/><rect x="83" y="68" width="14" height="22" fill="#ef4444" rx="2"/><line x1="90" y1="110" x2="90" y2="128" stroke="#ef4444" stroke-width="1.5"/><line x1="130" y1="125" x2="130" y2="60" stroke="#ef4444" stroke-width="1.5"/><rect x="123" y="82" width="14" height="18" fill="#ef4444" rx="2"/><line x1="130" y1="125" x2="130" y2="140" stroke="#ef4444" stroke-width="1.5"/><line x1="175" y1="138" x2="175" y2="82" stroke="#22c55e" stroke-width="1.5"/><rect x="168" y="126" width="14" height="12" fill="#22c55e" rx="2"/><line x1="175" y1="82" x2="175" y2="30" stroke="#22c55e" stroke-width="3.5"/><circle cx="175" cy="27" r="5" fill="#22c55e" opacity=".3"/><rect x="200" y="0" width="140" height="160" fill="#f8f8f8"/><text x="270" y="85" text-anchor="middle" fill="#ddd" font-size="52" font-weight="900" font-family="monospace">?</text>`;}
+function drawSupport(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">SOL/USDT · 1D</text><line x1="20" y1="100" x2="320" y2="100" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6,4"/><text x="325" y="104" font-size="9" fill="#2563eb" font-weight="700">SUP</text><polyline points="30,60 70,80 110,55 150,90 190,100 230,105 270,101 310,103" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round"/><circle cx="270" cy="101" r="5" fill="#2563eb" opacity=".3"/>`;}
+function drawUptrend(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">ETH/USDT · 1D</text><line x1="30" y1="140" x2="310" y2="40" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="5,4" opacity=".6"/><rect x="40" y="118" width="14" height="22" fill="#22c55e" rx="2"/><rect x="80" y="106" width="14" height="20" fill="#22c55e" rx="2"/><rect x="120" y="90" width="14" height="20" fill="#22c55e" rx="2"/><rect x="160" y="75" width="14" height="18" fill="#22c55e" rx="2"/><rect x="200" y="60" width="14" height="18" fill="#22c55e" rx="2"/><rect x="240" y="44" width="14" height="16" fill="#22c55e" rx="2"/>`;}
+function drawVolume(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">BNB/USDT · Volume</text><rect x="30" y="90" width="18" height="50" fill="#22c55e" rx="2" opacity=".4"/><rect x="58" y="96" width="18" height="44" fill="#22c55e" rx="2" opacity=".4"/><rect x="86" y="88" width="18" height="52" fill="#22c55e" rx="2" opacity=".4"/><rect x="114" y="94" width="18" height="46" fill="#22c55e" rx="2" opacity=".4"/><rect x="142" y="40" width="18" height="100" fill="#2563eb" rx="2"/><rect x="170" y="80" width="18" height="60" fill="#22c55e" rx="2" opacity=".5"/><line x1="142" y1="50" x2="220" y2="30" stroke="#0a0a0a" stroke-width="1.5" stroke-dasharray="4,3"/><text x="226" y="34" font-size="9" fill="#0a0a0a" font-weight="700">ROMPE</text>`;}
+function drawRSI(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">RSI · 14</text><line x1="20" y1="50" x2="320" y2="50" stroke="#ef4444" stroke-width="1" stroke-dasharray="5,4" opacity=".6"/><text x="325" y="54" font-size="9" fill="#ef4444" font-weight="700">70</text><line x1="20" y1="110" x2="320" y2="110" stroke="#2563eb" stroke-width="1" stroke-dasharray="5,4" opacity=".6"/><text x="325" y="114" font-size="9" fill="#2563eb" font-weight="700">30</text><polyline points="20,120 60,100 100,85 140,72 180,55 220,42 260,38 300,35" fill="none" stroke="#f7931a" stroke-width="2.5" stroke-linejoin="round"/><circle cx="300" cy="35" r="6" fill="#ef4444" opacity=".5"/><text x="252" y="29" font-size="11" fill="#ef4444" font-weight="800">78</text>`;}
+function drawMA(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">BTC/USDT · MM 200</text><polyline points="20,130 60,120 100,125 140,115 180,110 220,100 260,85 300,75" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6,3"/><polyline points="20,140 60,145 100,138 140,130 175,118 185,105 220,85 260,65 300,52" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linejoin="round"/><circle cx="178" cy="112" r="8" fill="#22c55e" opacity=".25"/><circle cx="178" cy="112" r="4" fill="#22c55e"/><text x="165" y="70" font-size="10" fill="#22c55e" font-weight="800">CRUZOU</text>`;}
+function drawFib(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">ETH/USDT · Fibonacci</text><line x1="20" y1="30" x2="310" y2="30" stroke="#22c55e" stroke-width="1" opacity=".5"/><line x1="20" y1="72" x2="310" y2="72" stroke="#f7931a" stroke-width="1" opacity=".5"/><line x1="20" y1="100" x2="310" y2="100" stroke="#f7931a" stroke-width="1" opacity=".5"/><line x1="20" y1="118" x2="310" y2="118" stroke="#ef4444" stroke-width="2"/><text x="315" y="122" font-size="8" fill="#ef4444" font-weight="700">61.8</text><polyline points="20,30 70,55 120,80 160,105 195,118 210,112 260,90 300,60" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linejoin="round"/><circle cx="195" cy="118" r="6" fill="#ef4444" opacity=".4"/>`;}
+function drawFlag(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">AVAX/USDT · 4H</text><polyline points="30,140 80,100 100,95 120,110 140,90 160,105 180,85 190,78" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/><line x1="95" y1="80" x2="190" y2="70" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/><line x1="95" y1="115" x2="190" y2="105" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/><polyline points="190,78 230,50 280,30" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-dasharray="6,4"/><text x="226" y="25" font-size="9" fill="#22c55e" font-weight="700">ROMPIMENTO</text>`;}
+let curDay=1,curQ=0,score={1:0,2:0},done={1:false,2:false},qtimer=null,tv=30;
+const letters=['A','B','C','D'];
+function initQ(){const quiz=quizzes[curDay],q=quiz.perguntas[curQ];clearInterval(qtimer);tv=30;const tn=document.getElementById('tn');tn.textContent=tv;tn.className='tring';document.getElementById('xpbadge').textContent='+'+quiz.xp+' XP';document.getElementById('qq').textContent=q.pergunta;q.svg(document.getElementById('qsvg'));const opts=document.getElementById('qopts');opts.innerHTML='';q.opcoes.forEach((op,i)=>{const d=document.createElement('div');d.className='qo';d.dataset.ok=i===q.certa?'1':'0';d.innerHTML=`<div class="ql">${letters[i]}</div>${op}`;d.onclick=()=>answ(d,q.certa);opts.appendChild(d);});const prog=document.getElementById('qprog');prog.innerHTML='';quiz.perguntas.forEach((_,i)=>{const d=document.createElement('div');d.className='qd'+(i<curQ?' done':i===curQ?' active':'');prog.appendChild(d);});document.getElementById('rbox').className='result-box';document.getElementById('nbtn').className='next-btn';qtimer=setInterval(()=>{tv--;tn.textContent=tv;if(tv<=0){clearInterval(qtimer);timeOut();}},1000);}
+function answ(el,certa){clearInterval(qtimer);document.querySelectorAll('.qo').forEach(o=>o.classList.add('off'));const ok=el.dataset.ok==='1';if(ok){el.classList.add('correct');score[curDay]++;showResult(true);}else{el.classList.add('wrong');document.querySelectorAll('.qo')[certa].classList.add('reveal-right');showResult(false);}}
+function timeOut(){document.querySelectorAll('.qo').forEach(o=>o.classList.add('off'));document.querySelectorAll('.qo')[quizzes[curDay].perguntas[curQ].certa].classList.add('reveal-right');showResult(false,true);}
+function showResult(ok,timeout){const rb=document.getElementById('rbox'),icon=document.getElementById('rb-icon'),title=document.getElementById('rb-title'),sub=document.getElementById('rb-sub'),xp=quizzes[curDay].xp;rb.className='result-box show '+(ok?'ok':'err');icon.textContent=ok?'✓':'✗';if(ok){title.textContent='Correto! +'+xp+' XP';sub.textContent='Parabéns, você acertou!';}else if(timeout){title.textContent='Tempo esgotado!';sub.textContent='A resposta correta está destacada.';}else{title.textContent='Resposta errada';sub.textContent='Veja a resposta correta em verde.';}const tn=document.getElementById('tn');tn.className='tring '+(ok?'done-g':'done-r');tn.textContent=ok?'✓':'✗';const nb=document.getElementById('nbtn');nb.className='next-btn show';nb.textContent=curQ===quizzes[curDay].perguntas.length-1?'Ver resultado →':'Próxima pergunta →';}
+function nextQ(){if(curQ<quizzes[curDay].perguntas.length-1){curQ++;initQ();}else{finishQuiz();}}
+function finishQuiz(){done[curDay]=true;document.getElementById('qview').style.display='none';document.getElementById('doneview').style.display='block';const sc=score[curDay],tot=quizzes[curDay].perguntas.length,xpT=sc*quizzes[curDay].xp;document.getElementById('done-ico').textContent=sc>=3?'🎯':sc>=2?'👍':'📚';document.getElementById('done-title').textContent='Quiz '+curDay+' concluído!';document.getElementById('done-sub').textContent='Você acertou '+sc+' de '+tot+' perguntas';document.getElementById('done-xp').textContent='+'+xpT+' XP ganhos';const other=curDay===1?2:1;document.getElementById('done-next').textContent=done[other]?'Ambos os quizzes finalizados hoje!':'Quiz '+other+' disponível agora!';document.getElementById('d'+curDay+'dot').className='dt-dot done-dot';document.getElementById('d'+curDay+'s').textContent=sc+'/'+tot+' acertos';}
+function setDay(d){curDay=d;curQ=0;document.getElementById('d1tab').classList.toggle('on',d===1);document.getElementById('d2tab').classList.toggle('on',d===2);if(done[d]){document.getElementById('qview').style.display='none';document.getElementById('doneview').style.display='block';}else{document.getElementById('qview').style.display='block';document.getElementById('doneview').style.display='none';initQ();}}
+initQ();
+</script>
+</body>
+</html>
