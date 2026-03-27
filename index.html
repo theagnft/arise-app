@@ -275,7 +275,7 @@ const tg=window.Telegram&&window.Telegram.WebApp;
 if(tg){tg.ready();tg.expand();const u=tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u){const n=(u.first_name||'')+' '+(u.last_name||'');const h=u.username?'@'+u.username:'@usuario';const i=((u.first_name||'?')[0]+(u.last_name?u.last_name[0]:'')).toUpperCase();document.getElementById('uname').textContent=n.trim();document.getElementById('uhandle').textContent=h;document.getElementById('av').textContent=i;document.getElementById('invite-link').textContent='t.me/ariseapp_bot?start=ref_'+u.id;
 // Busca foto de perfil
 const avEl=document.getElementById('av');
-fetch(VERCEL_URL+'/photo?user_id='+u.id)
+fetch(VERCEL_URL+'/api/photo?user_id='+u.id)
   .then(r=>{if(r.ok)return r.blob();throw new Error('no photo');})
   .then(blob=>{const url=URL.createObjectURL(blob);avEl.style.backgroundImage='url('+url+')';avEl.style.backgroundSize='cover';avEl.style.backgroundPosition='center';avEl.textContent='';})
   .catch(()=>{avEl.textContent=i;});
