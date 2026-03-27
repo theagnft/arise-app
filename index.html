@@ -4,7 +4,28 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>Arise App</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js">
+async function loadMovers(){
+  const el=document.getElementById('movers');
+  el.innerHTML='<div style="padding:20px;text-align:center;color:#888;font-size:13px">Carregando...</div>';
+  try{
+    const r=await fetch('https://arise-app-six.vercel.app/api/prices');
+    const d=await r.json();
+    if(!d.ok)throw new Error();
+    const cc={BTC:'#fff7e6,#f7931a',ETH:'#fceaea,#e53935',SOL:'#f3eeff,#9945ff',BNB:'#fffbea,#f0b90b',DOGE:'#fceaea,#e53935',AVAX:'#eaf5ec,#22c55e',XRP:'#e6f1fb,#2563eb',ADA:'#f3eeff,#0033ad',MATIC:'#f3eeff,#8247e5',LINK:'#e6f1fb,#2563eb'};
+    el.innerHTML=d.data.map(c=>{
+      const [bg,co]=(cc[c.symbol]||'#f0f0f0,#888').split(',');
+      const up=c.change>=0;
+      const pct=(up?'+':'')+c.change.toFixed(2)+'%';
+      const price=c.price<1?'$'+c.price.toFixed(4):c.price<100?'$'+c.price.toFixed(2):'$'+c.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+      return '<div class="mc"><div class="mc-l"><div class="mc-ico" style="background:'+bg+';color:'+co+'">'+c.symbol+'</div><div><div class="mc-name">'+c.symbol+'/USDT</div><div class="mc-pr">'+price+'</div></div></div><div class="mc-pct '+(up?'up':'dn')+'">'+pct+'</div></div>';
+    }).join('');
+  }catch(e){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:#888;font-size:13px">Erro ao carregar preços</div>';
+  }
+}
+loadMovers();
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;padding-bottom:72px}
@@ -171,13 +192,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
   <div class="sl">Top movers · BingX Futuros</div>
-  <div class="movers" id="movers">
-    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#fff7e6;color:#f7931a">BTC</div><div><div class="mc-name">BTC/USDT</div><div class="mc-pr">$67.420</div></div></div><div class="mc-pct up">+4.2%</div></div>
-    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#f3eeff;color:#9945ff">SOL</div><div><div class="mc-name">SOL/USDT</div><div class="mc-pr">$174.80</div></div></div><div class="mc-pct up">+8.7%</div></div>
-    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#fceaea;color:#e53935">DOGE</div><div><div class="mc-name">DOGE/USDT</div><div class="mc-pr">$0.1843</div></div></div><div class="mc-pct dn">-6.3%</div></div>
-    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#eaf5ec;color:#22c55e">AVAX</div><div><div class="mc-name">AVAX/USDT</div><div class="mc-pr">$39.12</div></div></div><div class="mc-pct up">+11.4%</div></div>
-    <div class="mc"><div class="mc-l"><div class="mc-ico" style="background:#fceaea;color:#e53935">ETH</div><div><div class="mc-name">ETH/USDT</div><div class="mc-pr">$3.241</div></div></div><div class="mc-pct dn">-3.1%</div></div>
-  </div>
+  <div class="movers" id="movers"><div style="padding:20px;text-align:center;color:#888;font-size:13px">Carregando...</div></div>
 </div>
 <div class="tab" id="tq">
   <div class="dtabs">
@@ -219,7 +234,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="bcard b4"><div class="bpos">4° lugar</div><div class="bval">1 aula</div><div class="btype">acesso completo</div></div>
   </div>
   <div class="sl">Ranking desta semana</div>
-  <div class="rlist">
+  <div class="rlist" id="rlist-dynamic">
     <div class="ri"><div class="rip g">1</div><div class="riav" style="background:#c49a00">CR</div><div class="riname">carlos.r</div><div class="rixp">3.820</div><div class="riinv">21 inv</div></div>
     <div class="ri"><div class="rip s">2</div><div class="riav" style="background:#888">MF</div><div class="riname">m.ferreira</div><div class="rixp">3.410</div><div class="riinv">19 inv</div></div>
     <div class="ri"><div class="rip b">3</div><div class="riav" style="background:#a0522d">TS</div><div class="riname">t.santos</div><div class="rixp">2.990</div><div class="riinv">15 inv</div></div>
@@ -270,26 +285,134 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 <script>
-const VERCEL_URL='https://arise-app-six.vercel.app';
+const VERCEL='https://arise-app-six.vercel.app';
+let ME={};
+
+// === TELEGRAM INIT ===
 const tg=window.Telegram&&window.Telegram.WebApp;
-if(tg){tg.ready();tg.expand();const u=tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u){const n=(u.first_name||'')+' '+(u.last_name||'');const h=u.username?'@'+u.username:'@usuario';const i=((u.first_name||'?')[0]+(u.last_name?u.last_name[0]:'')).toUpperCase();document.getElementById('uname').textContent=n.trim();document.getElementById('uhandle').textContent=h;document.getElementById('av').textContent=i;document.getElementById('invite-link').textContent='t.me/arisetrade?start=ref_'+u.id;
-// Busca foto de perfil
-const avEl=document.getElementById('av');
-fetch(VERCEL_URL+'/api/photo?user_id='+u.id)
-  .then(r=>{if(r.ok)return r.blob();throw new Error('no photo');})
-  .then(blob=>{const url=URL.createObjectURL(blob);avEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';})
-  .catch(()=>{avEl.textContent=i;});
-}}
+if(tg){tg.ready();tg.expand();}
+
+async function init(){
+  const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
+  const uid=u?u.id:null;
+  const ref=new URLSearchParams(window.location.search).get('ref')||
+            (tg&&tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||null;
+
+  if(uid){
+    // Update header immediately with Telegram data
+    const name=(u.first_name||'')+' '+(u.last_name||'');
+    const handle=u.username?'@'+u.username:'@usuario';
+    const initials=((u.first_name||'?')[0]+(u.last_name?u.last_name[0]:'')).toUpperCase();
+    document.getElementById('uname').textContent=name.trim();
+    document.getElementById('uhandle').textContent=handle;
+    document.getElementById('av').textContent=initials;
+    document.getElementById('invite-link').textContent='t.me/arisetrade?start=ref_'+uid;
+
+    // Fetch photo
+    const avEl=document.getElementById('av');
+    fetch(VERCEL+'/api/photo?user_id='+uid)
+      .then(r=>{if(r.ok)return r.blob();throw new Error();})
+      .then(blob=>{const url=URL.createObjectURL(blob);avEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';})
+      .catch(()=>{});
+
+    // Sync user with backend
+    try{
+      const params=new URLSearchParams({user_id:uid,first_name:u.first_name||'',last_name:u.last_name||'',username:u.username||''});
+      if(ref)params.set('ref',ref.replace('ref_',''));
+      const r=await fetch(VERCEL+'/api/user?'+params);
+      const d=await r.json();
+      if(d.ok){
+        ME=d.user;
+        ME.quiz_done=d.quiz_done;
+        ME.rank=d.rank;
+        updateHome(d);
+        updateRanking(d.ranking);
+      }
+    }catch(e){}
+  }
+}
+
+function updateHome(d){
+  const u=d.user;
+  const xp=u.xp||0;
+  const lvl=Math.floor(xp/500)+1;
+  const xpInLvl=xp%500;
+  const pct=(xpInLvl/500*100).toFixed(1);
+  document.querySelector('.xv').textContent=xp.toLocaleString();
+  document.querySelector('.xrk-v').textContent='#'+(d.rank||'--');
+  document.querySelector('.ulv').textContent='⭐ Nível '+lvl+' · '+xp+' XP';
+  document.querySelector('.xnt').textContent=(500-xpInLvl)+' XP para o Nível '+(lvl+1);
+  setTimeout(()=>{const f=document.getElementById('xf');if(f)f.style.width=pct+'%';},400);
+  // XP breakdown
+  const xis=document.querySelectorAll('.xi-v');
+  if(xis[0])xis[0].textContent='+'+(u.xp_invites||0);
+  if(xis[1])xis[1].textContent='+'+(u.xp_quiz||0);
+  if(xis[2])xis[2].textContent='+'+(u.xp_streak||0);
+  if(xis[3])xis[3].textContent=(u.streak||1)+' dias';
+  // Quiz status tabs
+  const q=d.quiz_done;
+  if(q[1]){document.getElementById('d1s').textContent='Concluído';document.getElementById('d1dot').className='dt-dot done-dot';}
+  if(q[2]){document.getElementById('d2s').textContent='Concluído';document.getElementById('d2dot').className='dt-dot done-dot';}
+}
+
+function updateRanking(ranking){
+  if(!ranking||!ranking.length)return;
+  const colors=['#c49a00','#888','#a0522d'];
+  const list=document.getElementById('rlist-dynamic');
+  if(!list)return;
+  list.innerHTML=ranking.map((r,i)=>{
+    const isMe=ME&&r.id===ME.id;
+    const initials=((r.first_name||'?')[0]).toUpperCase();
+    const col=colors[i]||'#bbb';
+    const ripClass=i===0?'g':i===1?'s':i===2?'b':'';
+    return '<div class="ri'+(isMe?' me':'')+'">'+
+      '<div class="rip '+ripClass+'">'+(i+1)+'</div>'+
+      '<div class="riav" style="background:'+col+'">'+initials+'</div>'+
+      '<div class="riname">'+(r.username?'@'+r.username:r.first_name||'user')+(isMe?' (você)':'')+'</div>'+
+      '<div class="rixp">'+(r.xp||0).toLocaleString()+'</div>'+
+      '<div class="riinv">'+(r.invite_count||0)+' inv</div>'+
+    '</div>';
+  }).join('');
+}
+
+// === NAV ===
 const tmap={h:'th',q:'tq',r:'tr',p:'tp'},nmap={h:'nh',q:'nq',r:'nr',p:'np'},pmap={h:'ph',q:'pq',r:'pr',p:'pp'};
 let cur='h';
 function st(t){document.getElementById(tmap[cur]).classList.remove('on');document.getElementById(nmap[cur]).classList.remove('on');document.getElementById(pmap[cur]).classList.remove('on');cur=t;document.getElementById(tmap[t]).classList.add('on');document.getElementById(nmap[t]).classList.add('on');document.getElementById(pmap[t]).classList.add('on');}
+
+// === SHARE ===
 function shareLink(){const l=document.getElementById('invite-link').textContent;if(tg&&tg.openTelegramLink){tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(l)+'&text='+encodeURIComponent('Entre no Arise App e concorra a $1.000 em vouchers!'));}else{navigator.clipboard&&navigator.clipboard.writeText(l);}}
 function cpy(){const b=document.getElementById('cbtn');navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('invite-link').textContent);b.textContent='Copiado!';setTimeout(()=>b.textContent='Copiar',1500);}
+
+// === COUNTDOWN ===
 function ucd(){const now=new Date(),nm=new Date(now);const diff=(1+7-now.getDay())%7||7;nm.setDate(now.getDate()+diff);nm.setHours(0,0,0,0);const ms=nm-now,d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000);const el=document.getElementById('rcd');if(el)el.textContent=d+'d '+h+'h '+m+'m';}
 ucd();setInterval(ucd,60000);
-setTimeout(()=>{const f=document.getElementById('xf');if(f)f.style.width='85.6%';},400);
-const pd={h:{i:'2',x:'+320',q:'1/1',p:'#4',si:'hoje',sx:'hoje',sq:'acerto hoje',sp:'semanal'},s:{i:'12',x:'+2.280',q:'5/7',p:'#4',si:'semana',sx:'semana',sq:'acertos semana',sp:'semanal'},m:{i:'38',x:'+8.640',q:'19/28',p:'#3',si:'este mês',sx:'este mês',sq:'acertos mês',sp:'mensal'},t:{i:'87',x:'+21.400',q:'64/112',p:'#5',si:'total',sx:'acumulado',sq:'histórico',sp:'geral'}};
-function per(el,period){document.querySelectorAll('.ppt').forEach(t=>t.classList.remove('on'));el.classList.add('on');const d=pd[period];document.getElementById('si').textContent=d.i;document.getElementById('sx').textContent=d.x;document.getElementById('sq').textContent=d.q;document.getElementById('sp').textContent=d.p;document.getElementById('si-s').textContent=d.si;document.getElementById('sx-s').textContent=d.sx;document.getElementById('sq-s').textContent=d.sq;document.getElementById('sp-s').textContent=d.sp;}
+
+// === PERFIL PERIODOS ===
+const pd={h:{i:'--',x:'--',q:'--',p:'--',si:'hoje',sx:'hoje',sq:'hoje',sp:'semanal'},s:{i:'--',x:'--',q:'--',p:'--',si:'semana',sx:'semana',sq:'semana',sp:'semanal'},m:{i:'--',x:'--',q:'--',p:'--',si:'mês',sx:'mês',sq:'mês',sp:'mensal'},t:{i:'--',x:'--',q:'--',p:'--',si:'total',sx:'total',sq:'total',sp:'geral'}};
+function per(el,period){document.querySelectorAll('.ppt').forEach(t=>t.classList.remove('on'));el.classList.add('on');const d=pd[period];document.getElementById('si').textContent=ME.invite_count||d.i;document.getElementById('sx').textContent=ME.xp||d.x;document.getElementById('sq').textContent=d.q;document.getElementById('sp').textContent=ME.rank?'#'+ME.rank:d.p;document.getElementById('si-s').textContent=d.si;document.getElementById('sx-s').textContent=d.sx;document.getElementById('sq-s').textContent=d.sq;document.getElementById('sp-s').textContent=d.sp;}
+
+// === MOVERS ===
+async function loadMovers(){
+  const el=document.getElementById('movers');
+  el.innerHTML='<div style="padding:20px;text-align:center;color:#888;font-size:13px">Carregando...</div>';
+  try{
+    const r=await fetch(VERCEL+'/api/prices');
+    const d=await r.json();
+    if(!d.ok)throw new Error();
+    const cc={BTC:'#fff7e6,#f7931a',ETH:'#fceaea,#e53935',SOL:'#f3eeff,#9945ff',BNB:'#fffbea,#f0b90b',DOGE:'#fceaea,#e53935',AVAX:'#eaf5ec,#22c55e',XRP:'#e6f1fb,#2563eb',ADA:'#f3eeff,#0033ad',MATIC:'#f3eeff,#8247e5',LINK:'#e6f1fb,#2563eb'};
+    el.innerHTML=d.data.map(c=>{
+      const [bg,co]=(cc[c.symbol]||'#f0f0f0,#888').split(',');
+      const up=c.change>=0;
+      const pct=(up?'+':'')+c.change.toFixed(2)+'%';
+      const price=c.price<1?'$'+c.price.toFixed(4):c.price<100?'$'+c.price.toFixed(2):'$'+c.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+      return '<div class="mc"><div class="mc-l"><div class="mc-ico" style="background:'+bg+';color:'+co+'">'+c.symbol+'</div><div><div class="mc-name">'+c.symbol+'/USDT</div><div class="mc-pr">'+price+'</div></div></div><div class="mc-pct '+(up?'up':'dn')+'">'+pct+'</div></div>';
+    }).join('');
+  }catch(e){el.innerHTML='<div style="padding:20px;text-align:center;color:#888;font-size:13px">Erro ao carregar preços</div>';}
+}
+loadMovers();
+
+// === QUIZ ===
 const quizzes={1:{xp:50,perguntas:[{pergunta:'Qual padrão de candle indica reversão de alta após tendência de baixa?',opcoes:['Doji','Evening Star','Hammer','Shooting Star'],certa:2,svg:drawHammer},{pergunta:'O que o gráfico abaixo está demonstrando?',opcoes:['Rompimento de resistência','Teste de suporte','Double Top','Consolidação lateral'],certa:1,svg:drawSupport},{pergunta:'Qual o padrão identificado no gráfico?',opcoes:['Tendência de alta','Tendência de baixa','Mercado lateral','Expansão de volatilidade'],certa:0,svg:drawUptrend},{pergunta:'O volume no rompimento indica:',opcoes:['Fraqueza compradora','Confirmação do movimento','Distribuição','Fakeout'],certa:1,svg:drawVolume}]},2:{xp:50,perguntas:[{pergunta:'O RSI em 78 indica que o ativo está:',opcoes:['Sobrevendido','Neutro','Sobrecomprado','Em tendência forte'],certa:2,svg:drawRSI},{pergunta:'Quando o preço cruza a média móvel de baixo pra cima, temos:',opcoes:['Sinal de venda','Golden Cross','Death Cross','Divergência'],certa:1,svg:drawMA},{pergunta:'O nível de Fibonacci mais importante como suporte é:',opcoes:['23.6%','50%','61.8%','78.6%'],certa:2,svg:drawFib},{pergunta:'O padrão gráfico abaixo é conhecido como:',opcoes:['Triângulo ascendente','Bull Flag','Canal de baixa','Cunha'],certa:1,svg:drawFlag}]}};
 function drawHammer(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">BTC/USDT · 4H</text><line x1="50" y1="120" x2="50" y2="50" stroke="#ef4444" stroke-width="1.5"/><rect x="43" y="72" width="14" height="28" fill="#ef4444" rx="2"/><line x1="50" y1="120" x2="50" y2="135" stroke="#ef4444" stroke-width="1.5"/><line x1="90" y1="110" x2="90" y2="45" stroke="#ef4444" stroke-width="1.5"/><rect x="83" y="68" width="14" height="22" fill="#ef4444" rx="2"/><line x1="90" y1="110" x2="90" y2="128" stroke="#ef4444" stroke-width="1.5"/><line x1="130" y1="125" x2="130" y2="60" stroke="#ef4444" stroke-width="1.5"/><rect x="123" y="82" width="14" height="18" fill="#ef4444" rx="2"/><line x1="130" y1="125" x2="130" y2="140" stroke="#ef4444" stroke-width="1.5"/><line x1="175" y1="138" x2="175" y2="82" stroke="#22c55e" stroke-width="1.5"/><rect x="168" y="126" width="14" height="12" fill="#22c55e" rx="2"/><line x1="175" y1="82" x2="175" y2="30" stroke="#22c55e" stroke-width="3.5"/><circle cx="175" cy="27" r="5" fill="#22c55e" opacity=".3"/><rect x="200" y="0" width="140" height="160" fill="#f8f8f8"/><text x="270" y="85" text-anchor="middle" fill="#ddd" font-size="52" font-weight="900" font-family="monospace">?</text>`;}
 function drawSupport(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">SOL/USDT · 1D</text><line x1="20" y1="100" x2="320" y2="100" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6,4"/><text x="325" y="104" font-size="9" fill="#2563eb" font-weight="700">SUP</text><polyline points="30,60 70,80 110,55 150,90 190,100 230,105 270,101 310,103" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round"/><circle cx="270" cy="101" r="5" fill="#2563eb" opacity=".3"/>`;}
@@ -299,16 +422,84 @@ function drawRSI(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill
 function drawMA(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">BTC/USDT · MM 200</text><polyline points="20,130 60,120 100,125 140,115 180,110 220,100 260,85 300,75" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6,3"/><polyline points="20,140 60,145 100,138 140,130 175,118 185,105 220,85 260,65 300,52" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linejoin="round"/><circle cx="178" cy="112" r="8" fill="#22c55e" opacity=".25"/><circle cx="178" cy="112" r="4" fill="#22c55e"/><text x="165" y="70" font-size="10" fill="#22c55e" font-weight="800">CRUZOU</text>`;}
 function drawFib(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">ETH/USDT · Fibonacci</text><line x1="20" y1="30" x2="310" y2="30" stroke="#22c55e" stroke-width="1" opacity=".5"/><line x1="20" y1="72" x2="310" y2="72" stroke="#f7931a" stroke-width="1" opacity=".5"/><line x1="20" y1="100" x2="310" y2="100" stroke="#f7931a" stroke-width="1" opacity=".5"/><line x1="20" y1="118" x2="310" y2="118" stroke="#ef4444" stroke-width="2"/><text x="315" y="122" font-size="8" fill="#ef4444" font-weight="700">61.8</text><polyline points="20,30 70,55 120,80 160,105 195,118 210,112 260,90 300,60" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linejoin="round"/><circle cx="195" cy="118" r="6" fill="#ef4444" opacity=".4"/>`;}
 function drawFlag(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">AVAX/USDT · 4H</text><polyline points="30,140 80,100 100,95 120,110 140,90 160,105 180,85 190,78" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/><line x1="95" y1="80" x2="190" y2="70" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/><line x1="95" y1="115" x2="190" y2="105" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/><polyline points="190,78 230,50 280,30" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-dasharray="6,4"/><text x="226" y="25" font-size="9" fill="#22c55e" font-weight="700">ROMPIMENTO</text>`;}
+
 let curDay=1,curQ=0,score={1:0,2:0},done={1:false,2:false},qtimer=null,tv=30;
 const letters=['A','B','C','D'];
-function initQ(){const quiz=quizzes[curDay],q=quiz.perguntas[curQ];clearInterval(qtimer);tv=30;const tn=document.getElementById('tn');tn.textContent=tv;tn.className='tring';document.getElementById('xpbadge').textContent='+'+quiz.xp+' XP';document.getElementById('qq').textContent=q.pergunta;q.svg(document.getElementById('qsvg'));const opts=document.getElementById('qopts');opts.innerHTML='';q.opcoes.forEach((op,i)=>{const d=document.createElement('div');d.className='qo';d.dataset.ok=i===q.certa?'1':'0';d.innerHTML=`<div class="ql">${letters[i]}</div>${op}`;d.onclick=()=>answ(d,q.certa);opts.appendChild(d);});const prog=document.getElementById('qprog');prog.innerHTML='';quiz.perguntas.forEach((_,i)=>{const d=document.createElement('div');d.className='qd'+(i<curQ?' done':i===curQ?' active':'');prog.appendChild(d);});document.getElementById('rbox').className='result-box';document.getElementById('nbtn').className='next-btn';qtimer=setInterval(()=>{tv--;tn.textContent=tv;if(tv<=0){clearInterval(qtimer);timeOut();}},1000);}
-function answ(el,certa){clearInterval(qtimer);document.querySelectorAll('.qo').forEach(o=>o.classList.add('off'));const ok=el.dataset.ok==='1';if(ok){el.classList.add('correct');score[curDay]++;showResult(true);}else{el.classList.add('wrong');document.querySelectorAll('.qo')[certa].classList.add('reveal-right');showResult(false);}}
+
+function initQ(){
+  // Check if quiz already done today
+  if(ME.quiz_done&&ME.quiz_done[curDay]){
+    document.getElementById('qview').style.display='none';
+    document.getElementById('doneview').style.display='block';
+    document.getElementById('done-title').textContent='Quiz '+curDay+' já feito hoje!';
+    document.getElementById('done-sub').textContent='Volte amanhã para o próximo quiz';
+    document.getElementById('done-xp').textContent='Até amanhã!';
+    return;
+  }
+  const quiz=quizzes[curDay],q=quiz.perguntas[curQ];
+  clearInterval(qtimer);tv=30;
+  const tn=document.getElementById('tn');tn.textContent=tv;tn.className='tring';
+  document.getElementById('xpbadge').textContent='+'+quiz.xp+' XP';
+  document.getElementById('qq').textContent=q.pergunta;
+  q.svg(document.getElementById('qsvg'));
+  const opts=document.getElementById('qopts');opts.innerHTML='';
+  q.opcoes.forEach((op,i)=>{const d=document.createElement('div');d.className='qo';d.dataset.ok=i===q.certa?'1':'0';d.innerHTML=`<div class="ql">${letters[i]}</div>${op}`;d.onclick=()=>answ(d,q.certa);opts.appendChild(d);});
+  const prog=document.getElementById('qprog');prog.innerHTML='';
+  quiz.perguntas.forEach((_,i)=>{const d=document.createElement('div');d.className='qd'+(i<curQ?' done':i===curQ?' active':'');prog.appendChild(d);});
+  document.getElementById('rbox').className='result-box';
+  document.getElementById('nbtn').className='next-btn';
+  qtimer=setInterval(()=>{tv--;tn.textContent=tv;if(tv<=0){clearInterval(qtimer);timeOut();}},1000);
+}
+
+function answ(el,certa){
+  clearInterval(qtimer);
+  document.querySelectorAll('.qo').forEach(o=>o.classList.add('off'));
+  const ok=el.dataset.ok==='1';
+  if(ok){el.classList.add('correct');score[curDay]++;showResult(true);}
+  else{el.classList.add('wrong');document.querySelectorAll('.qo')[certa].classList.add('reveal-right');showResult(false);}
+}
 function timeOut(){document.querySelectorAll('.qo').forEach(o=>o.classList.add('off'));document.querySelectorAll('.qo')[quizzes[curDay].perguntas[curQ].certa].classList.add('reveal-right');showResult(false,true);}
-function showResult(ok,timeout){const rb=document.getElementById('rbox'),icon=document.getElementById('rb-icon'),title=document.getElementById('rb-title'),sub=document.getElementById('rb-sub'),xp=quizzes[curDay].xp;rb.className='result-box show '+(ok?'ok':'err');icon.textContent=ok?'✓':'✗';if(ok){title.textContent='Correto! +'+xp+' XP';sub.textContent='Parabéns, você acertou!';}else if(timeout){title.textContent='Tempo esgotado!';sub.textContent='A resposta correta está destacada.';}else{title.textContent='Resposta errada';sub.textContent='Veja a resposta correta em verde.';}const tn=document.getElementById('tn');tn.className='tring '+(ok?'done-g':'done-r');tn.textContent=ok?'✓':'✗';const nb=document.getElementById('nbtn');nb.className='next-btn show';nb.textContent=curQ===quizzes[curDay].perguntas.length-1?'Ver resultado →':'Próxima pergunta →';}
+function showResult(ok,timeout){
+  const rb=document.getElementById('rbox'),icon=document.getElementById('rb-icon'),title=document.getElementById('rb-title'),sub=document.getElementById('rb-sub'),xp=quizzes[curDay].xp;
+  rb.className='result-box show '+(ok?'ok':'err');icon.textContent=ok?'✓':'✗';
+  if(ok){title.textContent='Correto! +'+xp+' XP';sub.textContent='Parabéns, você acertou!';}
+  else if(timeout){title.textContent='Tempo esgotado!';sub.textContent='A resposta correta está destacada.';}
+  else{title.textContent='Resposta errada';sub.textContent='Veja a resposta correta em verde.';}
+  const tn=document.getElementById('tn');tn.className='tring '+(ok?'done-g':'done-r');tn.textContent=ok?'✓':'✗';
+  const nb=document.getElementById('nbtn');nb.className='next-btn show';nb.textContent=curQ===quizzes[curDay].perguntas.length-1?'Ver resultado →':'Próxima pergunta →';
+}
 function nextQ(){if(curQ<quizzes[curDay].perguntas.length-1){curQ++;initQ();}else{finishQuiz();}}
-function finishQuiz(){done[curDay]=true;document.getElementById('qview').style.display='none';document.getElementById('doneview').style.display='block';const sc=score[curDay],tot=quizzes[curDay].perguntas.length,xpT=sc*quizzes[curDay].xp;document.getElementById('done-ico').textContent=sc>=3?'🎯':sc>=2?'👍':'📚';document.getElementById('done-title').textContent='Quiz '+curDay+' concluído!';document.getElementById('done-sub').textContent='Você acertou '+sc+' de '+tot+' perguntas';document.getElementById('done-xp').textContent='+'+xpT+' XP ganhos';const other=curDay===1?2:1;document.getElementById('done-next').textContent=done[other]?'Ambos os quizzes finalizados hoje!':'Quiz '+other+' disponível agora!';document.getElementById('d'+curDay+'dot').className='dt-dot done-dot';document.getElementById('d'+curDay+'s').textContent=sc+'/'+tot+' acertos';}
-function setDay(d){curDay=d;curQ=0;document.getElementById('d1tab').classList.toggle('on',d===1);document.getElementById('d2tab').classList.toggle('on',d===2);if(done[d]){document.getElementById('qview').style.display='none';document.getElementById('doneview').style.display='block';}else{document.getElementById('qview').style.display='block';document.getElementById('doneview').style.display='none';initQ();}}
-initQ();
+async function finishQuiz(){
+  done[curDay]=true;
+  // Save to backend
+  if(ME.id){
+    try{
+      await fetch(VERCEL+'/api/quiz?user_id='+ME.id+'&quiz_number='+curDay+'&score='+score[curDay],{method:'POST'});
+    }catch(e){}
+  }
+  document.getElementById('qview').style.display='none';document.getElementById('doneview').style.display='block';
+  const sc=score[curDay],tot=quizzes[curDay].perguntas.length,xpT=sc*quizzes[curDay].xp;
+  document.getElementById('done-ico').textContent=sc>=3?'🎯':sc>=2?'👍':'📚';
+  document.getElementById('done-title').textContent='Quiz '+curDay+' concluído!';
+  document.getElementById('done-sub').textContent='Você acertou '+sc+' de '+tot+' perguntas';
+  document.getElementById('done-xp').textContent='+'+xpT+' XP ganhos';
+  const other=curDay===1?2:1;
+  const otherDone=done[other]||(ME.quiz_done&&ME.quiz_done[other]);
+  document.getElementById('done-next').textContent=otherDone?'Ambos os quizzes finalizados hoje!':'Quiz '+other+' disponível agora!';
+  document.getElementById('d'+curDay+'dot').className='dt-dot done-dot';
+  document.getElementById('d'+curDay+'s').textContent=sc+'/'+tot+' acertos';
+}
+function setDay(d){
+  curDay=d;curQ=0;
+  document.getElementById('d1tab').classList.toggle('on',d===1);
+  document.getElementById('d2tab').classList.toggle('on',d===2);
+  const isDone=done[d]||(ME.quiz_done&&ME.quiz_done[d]);
+  if(isDone){document.getElementById('qview').style.display='none';document.getElementById('doneview').style.display='block';}
+  else{document.getElementById('qview').style.display='block';document.getElementById('doneview').style.display='none';initQ();}
+}
+
+init();
+
 </script>
 </body>
 </html>
