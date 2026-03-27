@@ -427,8 +427,13 @@ let curDay=1,curQ=0,score={1:0,2:0},done={1:false,2:false},qtimer=null,tv=30;
 const letters=['A','B','C','D'];
 
 function initQ(){
+  // Check localStorage first (instant, no network)
+  const today=new Date().toISOString().split('T')[0];
+  const lsKey='arise_quiz_'+(ME.id||'guest')+'_'+today;
+  const lsSaved=JSON.parse(localStorage.getItem(lsKey)||'{}');
+  const localDone=lsSaved[curDay]!==undefined;
   // Check if quiz already done today
-  if(ME.quiz_done&&ME.quiz_done[curDay]){
+  if(localDone||(ME.quiz_done&&ME.quiz_done[curDay])){
     document.getElementById('qview').style.display='none';
     document.getElementById('doneview').style.display='block';
     document.getElementById('done-title').textContent='Quiz '+curDay+' já feito hoje!';
@@ -471,10 +476,26 @@ function showResult(ok,timeout){
 function nextQ(){if(curQ<quizzes[curDay].perguntas.length-1){curQ++;initQ();}else{finishQuiz();}}
 async function finishQuiz(){
   done[curDay]=true;
+  // Save to localStorage immediately
+  const today=new Date().toISOString().split('T')[0];
+  const key='arise_quiz_'+ME.id+'_'+today;
+  const saved=JSON.parse(localStorage.getItem(key)||'{}');
+  saved[curDay]=score[curDay];
+  localStorage.setItem(key,JSON.stringify(saved));
   // Save to backend
   if(ME.id){
     try{
-      await fetch(VERCEL+'/api/quiz?user_id='+ME.id+'&quiz_number='+curDay+'&score='+score[curDay],{method:'POST'});
+      const fd=new FormData();
+      fd.append('user_id',ME.id);
+      fd.append('quiz_number',curDay);
+      fd.append('score',score[curDay]);
+      const r=await fetch(VERCEL+'/api/quiz',{method:'POST',body:new URLSearchParams({user_id:ME.id,quiz_number:curDay,score:score[curDay]})});
+      const d=await r.json();
+      if(d.ok&&d.xp_earned>0){
+        ME.xp=(ME.xp||0)+d.xp_earned;
+        document.querySelector('.xv').textContent=ME.xp.toLocaleString();
+        document.querySelector('.ulv').textContent='⭐ Nível '+Math.floor(ME.xp/500+1)+' · '+ME.xp+' XP';
+      }
     }catch(e){}
   }
   document.getElementById('qview').style.display='none';document.getElementById('doneview').style.display='block';
@@ -493,7 +514,10 @@ function setDay(d){
   curDay=d;curQ=0;
   document.getElementById('d1tab').classList.toggle('on',d===1);
   document.getElementById('d2tab').classList.toggle('on',d===2);
-  const isDone=done[d]||(ME.quiz_done&&ME.quiz_done[d]);
+  const today=new Date().toISOString().split('T')[0];
+  const lsKey='arise_quiz_'+(ME.id||'guest')+'_'+today;
+  const lsSaved=JSON.parse(localStorage.getItem(lsKey)||'{}');
+  const isDone=done[d]||(ME.quiz_done&&ME.quiz_done[d])||(lsSaved[d]!==undefined);
   if(isDone){document.getElementById('qview').style.display='none';document.getElementById('doneview').style.display='block';}
   else{document.getElementById('qview').style.display='block';document.getElementById('doneview').style.display='none';initQ();}
 }
