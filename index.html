@@ -6,16 +6,17 @@
   <title>Arise App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { margin:0; font-family: system-ui, sans-serif; background:#f0f2f5; }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body { font-family: system-ui, sans-serif; background:#f0f2f5; min-height:100vh; padding-bottom:70px; }
     .hd { background:white; padding:20px; text-align:center; border-bottom:1px solid #eee; }
     .av { width:80px; height:80px; border-radius:50%; margin:0 auto 10px; overflow:hidden; background:#22c55e; color:white; font-size:32px; display:flex; align-items:center; justify-content:center; }
-    .pills { display:flex; background:white; }
-    .pill { flex:1; padding:14px 0; text-align:center; font-weight:600; color:#666; border-bottom:3px solid transparent; }
+    .pills { display:flex; background:white; border-bottom:1px solid #ddd; }
+    .pill { flex:1; padding:15px 0; text-align:center; font-weight:600; color:#666; border-bottom:3px solid transparent; }
     .pill.on { color:#22c55e; border-bottom-color:#22c55e; }
-    .tab { display:none; padding:20px; min-height:60vh; }
+    .tab { display:none; padding:20px; }
     .tab.on { display:block; }
-    .nb { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #ddd; display:flex; }
-    .ni { flex:1; padding:10px 0; text-align:center; color:#666; }
+    .nb { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #ddd; display:flex; z-index:100; }
+    .ni { flex:1; padding:12px 0; text-align:center; color:#666; font-size:24px; }
     .ni.on { color:#22c55e; }
   </style>
 </head>
@@ -23,9 +24,8 @@
 
 <div class="hd">
   <div class="av" id="av">AG</div>
-  <h2 id="uname">AG</h2>
-  <p id="uhandle">@agboolish</p>
-  <div style="margin:10px 0; background:#e8f5ec; display:inline-block; padding:4px 12px; border-radius:20px; font-size:14px;">⭐ Nível 2 · 680 XP</div>
+  <h2 id="uname">Carregando...</h2>
+  <p id="uhandle">@usuario</p>
 </div>
 
 <div class="pills">
@@ -36,24 +36,24 @@
 </div>
 
 <div class="tab on" id="th">
-  <h3>Home - XP Total: 680</h3>
-  <p>Ranking semanal: #7</p>
-  <button onclick="refreshAll()" style="margin-top:20px; padding:12px 24px; background:#22c55e; color:white; border:none; border-radius:12px;">Atualizar Dados</button>
+  <h3>Home</h3>
+  <p>XP Total: <strong id="xp-total">680</strong></p>
+  <button onclick="refreshAll()" style="margin-top:15px;padding:12px 24px;background:#22c55e;color:white;border:none;border-radius:12px;">Atualizar Dados</button>
 </div>
 
 <div class="tab" id="tq">
   <h3>Quiz</h3>
-  <p>Quiz 1 e Quiz 2 aparecerão aqui em breve.</p>
+  <p>Aqui virão os quizzes em breve.</p>
 </div>
 
 <div class="tab" id="tr">
-  <h3>Ranking Semanal</h3>
-  <p>Ranking completo virá aqui.</p>
+  <h3>Ranking</h3>
+  <p>Ranking semanal aparecerá aqui.</p>
 </div>
 
 <div class="tab" id="tp">
   <h3>Perfil</h3>
-  <p>Seu link de convite e conquistas.</p>
+  <p>Link de convite e estatísticas.</p>
 </div>
 
 <div class="nb">
@@ -68,48 +68,59 @@ const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
-  console.log("✅ Telegram WebApp carregado");
+  console.log("✅ Telegram WebApp carregado com sucesso");
 }
 
 function switchTab(tab) {
-  console.log("🔄 Trocando para aba:", tab);
-  
-  // Remove 'on' de todas as abas e nav
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+  console.log(`🔄 Tentando trocar para aba: ${tab}`);
+
+  // Remove 'on' de tudo
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.pill').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(el => el.classList.remove('on'));
 
   // Ativa a nova aba
-  document.getElementById(tab + 'h' || 'th').classList.add('on'); // fallback
-  document.getElementById('p' + tab).classList.add('on');
-  document.getElementById('n' + tab).classList.add('on');
+  const tabEl = document.getElementById(tab === 'h' ? 'th' : 't' + tab);
+  if (tabEl) tabEl.classList.add('on');
+
+  const pillEl = document.getElementById('p' + tab);
+  if (pillEl) pillEl.classList.add('on');
+
+  const navEl = document.getElementById('n' + tab);
+  if (navEl) navEl.classList.add('on');
+
+  console.log(`✅ Aba ${tab} ativada`);
 }
 
-async function refreshAll() {
-  alert("🔄 Atualizando dados...");
-  // Aqui vamos colocar a chamada real depois que as abas funcionarem
+function refreshAll() {
+  alert("🔄 Atualizando dados do usuário...");
+  // Aqui vamos colocar a chamada real depois
 }
 
-// Inicializa foto e nome
-window.onload = () => {
+// Inicializa dados do Telegram
+function initApp() {
   const u = tg?.initDataUnsafe?.user;
   if (u) {
     document.getElementById('uname').textContent = u.first_name || 'Usuário';
-    document.getElementById('uhandle').textContent = u.username ? '@' + u.username : '';
-    
-    // Foto
+    document.getElementById('uhandle').textContent = u.username ? '@' + u.username : '@usuario';
+
+    // Carrega foto
     if (u.id) {
-      fetch('https://arise-app-six.vercel.app/api/photo?user_id=' + u.id)
+      fetch(`https://arise-app-six.vercel.app/api/photo?user_id=${u.id}`)
         .then(r => r.ok ? r.blob() : null)
         .then(blob => {
           if (blob) {
             const url = URL.createObjectURL(blob);
             document.getElementById('av').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
           }
-        });
+        })
+        .catch(() => console.log("Foto não carregada"));
     }
   }
-};
+  console.log("✅ App inicializado");
+}
+
+initApp();
 </script>
 </body>
 </html>
