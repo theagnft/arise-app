@@ -9,14 +9,19 @@
     * { box-sizing: border-box; margin:0; padding:0; }
     body { font-family: system-ui, sans-serif; background:#f0f2f5; min-height:100vh; padding-bottom:70px; }
     .hd { background:white; padding:20px; text-align:center; border-bottom:1px solid #eee; }
-    .av { width:80px; height:80px; border-radius:50%; margin:0 auto 10px; overflow:hidden; background:#22c55e; color:white; font-size:32px; display:flex; align-items:center; justify-content:center; }
+    .av { width:80px; height:80px; border-radius:50%; margin:0 auto 10px; overflow:hidden; background:#e8f5ec; }
+    .uname { font-size:20px; font-weight:700; }
+    .uhandle { color:#666; margin-bottom:8px; }
+    .ulv { background:#e8f5ec; color:#22c55e; padding:4px 12px; border-radius:20px; font-size:14px; display:inline-block; margin-bottom:12px; }
     .pills { display:flex; background:white; border-bottom:1px solid #ddd; }
     .pill { flex:1; padding:15px 0; text-align:center; font-weight:600; color:#666; border-bottom:3px solid transparent; }
     .pill.on { color:#22c55e; border-bottom-color:#22c55e; }
-    .tab { display:none; padding:20px; }
+    .tab { display:none; padding:16px; }
     .tab.on { display:block; }
+    .xcard { background:white; border-radius:16px; padding:16px; margin-bottom:16px; }
+    .movers { display:flex; flex-direction:column; gap:8px; }
     .nb { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #ddd; display:flex; z-index:100; }
-    .ni { flex:1; padding:12px 0; text-align:center; color:#666; font-size:24px; }
+    .ni { flex:1; padding:10px 0; text-align:center; color:#666; }
     .ni.on { color:#22c55e; }
   </style>
 </head>
@@ -24,8 +29,9 @@
 
 <div class="hd">
   <div class="av" id="av">AG</div>
-  <h2 id="uname">Carregando...</h2>
-  <p id="uhandle">@usuario</p>
+  <div class="uname" id="uname">Carregando...</div>
+  <div class="uhandle" id="uhandle">@usuario</div>
+  <div class="ulv" id="ulv">⭐ Nível 2 · 680 XP</div>
 </div>
 
 <div class="pills">
@@ -35,92 +41,128 @@
   <div class="pill" id="pp" onclick="switchTab('p')">Perfil</div>
 </div>
 
+<!-- HOME -->
 <div class="tab on" id="th">
-  <h3>Home</h3>
-  <p>XP Total: <strong id="xp-total">680</strong></p>
-  <button onclick="refreshAll()" style="margin-top:15px;padding:12px 24px;background:#22c55e;color:white;border:none;border-radius:12px;">Atualizar Dados</button>
+  <div class="xcard">
+    <h3>Seu XP esta semana</h3>
+    <p><strong id="xp-total">680</strong> XP</p>
+    <p>Ranking semanal: <strong id="my-rank">#7</strong></p>
+    <button onclick="refreshAll()" style="margin-top:12px; width:100%; padding:12px; background:#22c55e; color:white; border:none; border-radius:12px;">🔄 Atualizar Dados</button>
+  </div>
+  <div class="xcard">
+    <h4>Top movers</h4>
+    <div class="movers" id="movers">Carregando preços...</div>
+  </div>
 </div>
 
+<!-- QUIZ -->
 <div class="tab" id="tq">
   <h3>Quiz</h3>
-  <p>Aqui virão os quizzes em breve.</p>
+  <p>Os quizzes diários aparecerão aqui.</p>
 </div>
 
+<!-- RANKING -->
 <div class="tab" id="tr">
-  <h3>Ranking</h3>
-  <p>Ranking semanal aparecerá aqui.</p>
+  <h3>Ranking Semanal</h3>
+  <p>Ranking completo em breve.</p>
 </div>
 
+<!-- PERFIL -->
 <div class="tab" id="tp">
   <h3>Perfil</h3>
-  <p>Link de convite e estatísticas.</p>
+  <p>Link de convite e conquistas.</p>
 </div>
 
 <div class="nb">
-  <div class="ni on" id="nh" onclick="switchTab('h')">🏠</div>
-  <div class="ni" id="nq" onclick="switchTab('q')">❓</div>
-  <div class="ni" id="nr" onclick="switchTab('r')">🏆</div>
-  <div class="ni" id="np" onclick="switchTab('p')">👤</div>
+  <div class="ni on" id="nh" onclick="switchTab('h')">🏠<br><small>Home</small></div>
+  <div class="ni" id="nq" onclick="switchTab('q')">❓<br><small>Quiz</small></div>
+  <div class="ni" id="nr" onclick="switchTab('r')">🏆<br><small>Ranking</small></div>
+  <div class="ni" id="np" onclick="switchTab('p')">👤<br><small>Perfil</small></div>
 </div>
 
 <script>
+const VERCEL = 'https://arise-app-six.vercel.app';
 const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-  console.log("✅ Telegram WebApp carregado com sucesso");
-}
+if (tg) { tg.ready(); tg.expand(); }
+
+let ME = {};
 
 function switchTab(tab) {
-  console.log(`🔄 Tentando trocar para aba: ${tab}`);
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
 
-  // Remove 'on' de tudo
-  document.querySelectorAll('.tab').forEach(el => el.classList.remove('on'));
-  document.querySelectorAll('.pill').forEach(el => el.classList.remove('on'));
-  document.querySelectorAll('.ni').forEach(el => el.classList.remove('on'));
-
-  // Ativa a nova aba
-  const tabEl = document.getElementById(tab === 'h' ? 'th' : 't' + tab);
-  if (tabEl) tabEl.classList.add('on');
-
-  const pillEl = document.getElementById('p' + tab);
-  if (pillEl) pillEl.classList.add('on');
-
-  const navEl = document.getElementById('n' + tab);
-  if (navEl) navEl.classList.add('on');
-
-  console.log(`✅ Aba ${tab} ativada`);
+  document.getElementById('t' + tab).classList.add('on');
+  document.getElementById('p' + tab).classList.add('on');
+  document.getElementById('n' + tab).classList.add('on');
 }
 
-function refreshAll() {
-  alert("🔄 Atualizando dados do usuário...");
-  // Aqui vamos colocar a chamada real depois
+async function loadUserData() {
+  const u = tg?.initDataUnsafe?.user;
+  if (!u?.id) return;
+
+  try {
+    const r = await fetch(`${VERCEL}/api/user?user_id=${u.id}`);
+    const d = await r.json();
+
+    if (d.ok) {
+      ME = d.user || {};
+      document.getElementById('xp-total').textContent = (ME.xp || 0).toLocaleString('pt-BR');
+      document.getElementById('my-rank').textContent = `#${ME.rank || '--'}`;
+      document.getElementById('ulv').textContent = `⭐ Nível ${Math.floor((ME.xp||0)/500)+1} · ${(ME.xp||0).toLocaleString('pt-BR')} XP`;
+    }
+  } catch(e) { console.error(e); }
 }
 
-// Inicializa dados do Telegram
-function initApp() {
+async function loadMovers() {
+  const el = document.getElementById('movers');
+  try {
+    const r = await fetch(`${VERCEL}/api/prices`);
+    const d = await r.json();
+    if (d.ok) {
+      el.innerHTML = d.data.map(c => `
+        <div style="background:white;padding:12px;border-radius:12px;display:flex;justify-content:space-between;">
+          <div><strong>${c.symbol}</strong></div>
+          <div style="color:${c.change >= 0 ? '#22c55e' : '#ef4444'}">${c.change >= 0 ? '+' : ''}${c.change}%</div>
+        </div>
+      `).join('');
+    }
+  } catch(e) {
+    el.innerHTML = "Erro ao carregar preços";
+  }
+}
+
+async function refreshAll() {
+  await loadUserData();
+  await loadMovers();
+  alert("✅ Dados atualizados!");
+}
+
+// Init
+async function init() {
   const u = tg?.initDataUnsafe?.user;
   if (u) {
     document.getElementById('uname').textContent = u.first_name || 'Usuário';
     document.getElementById('uhandle').textContent = u.username ? '@' + u.username : '@usuario';
 
-    // Carrega foto
+    // Foto
     if (u.id) {
-      fetch(`https://arise-app-six.vercel.app/api/photo?user_id=${u.id}`)
+      fetch(`${VERCEL}/api/photo?user_id=${u.id}`)
         .then(r => r.ok ? r.blob() : null)
         .then(blob => {
           if (blob) {
             const url = URL.createObjectURL(blob);
             document.getElementById('av').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
           }
-        })
-        .catch(() => console.log("Foto não carregada"));
+        });
     }
   }
-  console.log("✅ App inicializado");
+
+  await loadUserData();
+  await loadMovers();
 }
 
-initApp();
+init();
 </script>
 </body>
 </html>
