@@ -7,22 +7,49 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin:0; padding:0; }
-    body { font-family: system-ui, sans-serif; background:#f0f2f5; min-height:100vh; padding-bottom:70px; }
+    body { font-family: system-ui, sans-serif; background:#f0f2f5; min-height:100vh; padding-bottom:80px; }
     .hd { background:white; padding:20px; text-align:center; border-bottom:1px solid #eee; }
     .av { width:80px; height:80px; border-radius:50%; margin:0 auto 10px; overflow:hidden; background:#e8f5ec; }
     .uname { font-size:20px; font-weight:700; }
     .uhandle { color:#666; margin-bottom:8px; }
     .ulv { background:#e8f5ec; color:#22c55e; padding:4px 12px; border-radius:20px; font-size:14px; display:inline-block; margin-bottom:12px; }
+
     .pills { display:flex; background:white; border-bottom:1px solid #ddd; }
     .pill { flex:1; padding:15px 0; text-align:center; font-weight:600; color:#666; border-bottom:3px solid transparent; }
     .pill.on { color:#22c55e; border-bottom-color:#22c55e; }
+
     .tab { display:none; padding:16px; }
     .tab.on { display:block; }
-    .xcard { background:white; border-radius:16px; padding:16px; margin-bottom:16px; }
-    .movers { display:flex; flex-direction:column; gap:8px; }
-    .nb { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #ddd; display:flex; z-index:100; }
-    .ni { flex:1; padding:10px 0; text-align:center; color:#666; }
-    .ni.on { color:#22c55e; }
+
+    /* === QUIZ STYLES === */
+    .dtabs { display:flex; gap:12px; margin-bottom:20px; }
+    .dt { flex:1; background:white; border-radius:16px; padding:16px 12px; text-align:center; border:2px solid transparent; }
+    .dt.on { border-color:#22c55e; background:#f0fdf4; }
+    .dt-n { font-size:14px; font-weight:700; }
+    .dt-s { font-size:13px; margin-top:6px; color:#555; }
+
+    .qcard { background:white; border-radius:18px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); margin-bottom:20px; }
+    .qimg { height:220px; background:#fafafa; display:flex; align-items:center; justify-content:center; position:relative; }
+    .qimg-label { position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.75); color:white; font-size:11px; padding:3px 10px; border-radius:6px; }
+
+    .qtop-bar { padding:16px; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; }
+    .timer-circle { width:58px; height:58px; border:6px solid #e5e5e5; border-top-color:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:#1e40af; animation: spin 1s linear infinite; }
+    .timer-circle.done { animation:none; border-color:#22c55e; color:#22c55e; }
+
+    .qq { font-size:17.5px; font-weight:700; line-height:1.45; padding:20px 16px 16px; }
+    .qopts { padding:0 16px 24px; display:flex; flex-direction:column; gap:12px; }
+    .qo { background:#f8f9fa; padding:16px; border-radius:14px; font-size:16px; cursor:pointer; border:2px solid transparent; }
+    .qo.correct { background:#22c55e; color:white; }
+    .qo.wrong { background:#ef4444; color:white; }
+
+    .next-btn { width:100%; padding:16px; background:#111; color:white; border:none; border-radius:14px; font-size:17px; font-weight:700; margin-top:10px; }
+
+    .done-card { text-align:center; padding:60px 20px; background:white; border-radius:18px; }
+    .done-ico { font-size:80px; margin-bottom:20px; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -57,21 +84,44 @@
 
 <!-- QUIZ -->
 <div class="tab" id="tq">
-  <h3>Quiz</h3>
-  <p>Os quizzes diários aparecerão aqui.</p>
+  <div class="dtabs">
+    <div class="dt on" id="d1tab" onclick="setDay(1)"><div class="dt-n">QUIZ 1</div><div class="dt-s" id="d1s">Ativo</div></div>
+    <div class="dt" id="d2tab" onclick="setDay(2)"><div class="dt-n">QUIZ 2</div><div class="dt-s" id="d2s">Pendente</div></div>
+  </div>
+
+  <div id="qview">
+    <div class="qcard">
+      <div class="qimg">
+        <div class="qimg-label" id="chart-label">BTC/USDT 4H</div>
+        <svg id="qsvg" width="100%" height="220" viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="qtop-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="timer-circle" id="timer">30</div>
+          <span style="font-size:15px;color:#555;">segundos</span>
+        </div>
+        <div style="background:#dbeafe;color:#1e40af;padding:8px 18px;border-radius:9999px;font-weight:700;">+50 XP</div>
+      </div>
+      <div class="qq" id="question"></div>
+      <div class="qopts" id="options"></div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" style="display:none;">Próxima Pergunta →</button>
+  </div>
+
+  <div id="doneview" style="display:none;">
+    <div class="done-card">
+      <div class="done-ico" id="doneIco">🎯</div>
+      <h2 id="doneTitle">Quiz Concluído!</h2>
+      <p id="doneSub"></p>
+      <div id="doneXP" style="font-size:28px;font-weight:800;color:#22c55e;margin:25px 0;"></div>
+      <button onclick="switchTab('h')" style="padding:14px 40px;background:#22c55e;color:white;border:none;border-radius:12px;">Voltar para Home</button>
+    </div>
+  </div>
 </div>
 
-<!-- RANKING -->
-<div class="tab" id="tr">
-  <h3>Ranking Semanal</h3>
-  <p>Ranking completo em breve.</p>
-</div>
-
-<!-- PERFIL -->
-<div class="tab" id="tp">
-  <h3>Perfil</h3>
-  <p>Link de convite e conquistas.</p>
-</div>
+<!-- Outras abas -->
+<div class="tab" id="tr"><h3>Ranking Semanal</h3><p>Em breve...</p></div>
+<div class="tab" id="tp"><h3>Perfil</h3><p>Em breve...</p></div>
 
 <div class="nb">
   <div class="ni on" id="nh" onclick="switchTab('h')">🏠<br><small>Home</small></div>
@@ -82,10 +132,56 @@
 
 <script>
 const VERCEL = 'https://arise-app-six.vercel.app';
-const tg = window.Telegram?.WebApp;
-if (tg) { tg.ready(); tg.expand(); }
-
 let ME = {};
+let currentDay = 1;
+let currentQuestion = 0;
+let score = 0;
+let timerInterval = null;
+
+const quizzes = {
+  1: {
+    questions: [
+      {
+        q: "Qual padrão de candle indica reversão de alta após tendência de baixa?",
+        options: ["Doji", "Evening Star", "Hammer", "Shooting Star"],
+        correct: 2,
+        label: "BTC/USDT 4H",
+        svg: (s) => {
+          s.innerHTML = `
+            <rect x="0" y="0" width="340" height="220" fill="#f8fafc"/>
+            <text x="170" y="28" text-anchor="middle" font-size="13" fill="#64748b">BTC/USDT 4H</text>
+            <!-- Candle vermelho -->
+            <line x1="80" y1="170" x2="80" y2="100" stroke="#ef4444" stroke-width="8"/>
+            <rect x="68" y="125" width="24" height="50" fill="#ef4444" rx="3"/>
+            <!-- Candle verde Hammer -->
+            <line x1="160" y1="165" x2="160" y2="75" stroke="#22c55e" stroke-width="8"/>
+            <rect x="148" y="135" width="24" height="32" fill="#22c55e" rx="3"/>
+            <text x="170" y="205" text-anchor="middle" font-size="12" fill="#22c55e">Hammer - Reversão</text>
+          `;
+        }
+      },
+      {
+        q: "O que significa RSI acima de 70?",
+        options: ["Sobrevendido", "Sobrecomprado", "Neutro", "Tendência fraca"],
+        correct: 1,
+        label: "RSI (14)",
+        svg: (s) => {
+          s.innerHTML = `
+            <rect x="0" y="0" width="340" height="220" fill="#f8fafc"/>
+            <text x="170" y="30" text-anchor="middle" font-size="13" fill="#64748b">RSI 14</text>
+            <line x1="40" y1="85" x2="300" y2="85" stroke="#ef4444" stroke-width="4"/>
+            <text x="310" y="90" font-size="14" fill="#ef4444">70</text>
+            <polyline points="40,170 80,150 130,135 180,110 230,90 270,72" fill="none" stroke="#f59e0b" stroke-width="5" stroke-linejoin="round"/>
+          `;
+        }
+      }
+      // Podemos adicionar as outras 2 perguntas depois
+    ]
+  },
+  2: {
+    questions: [] // Vamos preencher depois
+  }
+};
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
@@ -97,69 +193,123 @@ function switchTab(tab) {
   document.getElementById('n' + tab).classList.add('on');
 }
 
-async function loadUserData() {
-  const u = tg?.initDataUnsafe?.user;
-  if (!u?.id) return;
+function setDay(day) {
+  currentDay = day;
+  currentQuestion = 0;
+  score = 0;
 
-  try {
-    const r = await fetch(`${VERCEL}/api/user?user_id=${u.id}`);
-    const d = await r.json();
+  document.getElementById('d1tab').classList.toggle('on', day === 1);
+  document.getElementById('d2tab').classList.toggle('on', day === 2);
 
-    if (d.ok) {
-      ME = d.user || {};
-      document.getElementById('xp-total').textContent = (ME.xp || 0).toLocaleString('pt-BR');
-      document.getElementById('my-rank').textContent = `#${ME.rank || '--'}`;
-      document.getElementById('ulv').textContent = `⭐ Nível ${Math.floor((ME.xp||0)/500)+1} · ${(ME.xp||0).toLocaleString('pt-BR')} XP`;
-    }
-  } catch(e) { console.error(e); }
+  document.getElementById('qview').style.display = 'block';
+  document.getElementById('doneview').style.display = 'none';
+
+  loadQuestion();
 }
 
-async function loadMovers() {
-  const el = document.getElementById('movers');
-  try {
-    const r = await fetch(`${VERCEL}/api/prices`);
-    const d = await r.json();
-    if (d.ok) {
-      el.innerHTML = d.data.map(c => `
-        <div style="background:white;padding:12px;border-radius:12px;display:flex;justify-content:space-between;">
-          <div><strong>${c.symbol}</strong></div>
-          <div style="color:${c.change >= 0 ? '#22c55e' : '#ef4444'}">${c.change >= 0 ? '+' : ''}${c.change}%</div>
-        </div>
-      `).join('');
+function loadQuestion() {
+  const qData = quizzes[currentDay].questions[currentQuestion];
+  if (!qData) return;
+
+  document.getElementById('question').textContent = qData.q;
+  document.getElementById('chart-label').textContent = qData.label || '';
+
+  const svg = document.getElementById('qsvg');
+  svg.innerHTML = '';
+  qData.svg(svg);
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+
+  qData.options.forEach((text, i) => {
+    const div = document.createElement('div');
+    div.className = 'qo';
+    div.textContent = text;
+    div.onclick = () => answerQuestion(i, qData.correct);
+    opts.appendChild(div);
+  });
+
+  startTimer();
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+function startTimer() {
+  let time = 30;
+  const el = document.getElementById('timer');
+  el.textContent = time;
+  el.classList.remove('done');
+
+  if (timerInterval) clearInterval(timerInterval);
+
+  timerInterval = setInterval(() => {
+    time--;
+    el.textContent = time;
+    if (time <= 0) {
+      clearInterval(timerInterval);
+      timeUp();
     }
-  } catch(e) {
-    el.innerHTML = "Erro ao carregar preços";
+  }, 1000);
+}
+
+function answerQuestion(selected, correct) {
+  clearInterval(timerInterval);
+  const options = document.querySelectorAll('.qo');
+  options.forEach((opt, i) => {
+    opt.style.pointerEvents = 'none';
+    if (i === correct) opt.classList.add('correct');
+    if (i === selected && i !== correct) opt.classList.add('wrong');
+  });
+
+  if (selected === correct) score++;
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function timeUp() {
+  const correct = quizzes[currentDay].questions[currentQuestion].correct;
+  const options = document.querySelectorAll('.qo');
+  options.forEach((opt, i) => {
+    opt.style.pointerEvents = 'none';
+    if (i === correct) opt.classList.add('correct');
+  });
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  if (currentQuestion < quizzes[currentDay].questions.length) {
+    loadQuestion();
+  } else {
+    finishQuiz();
   }
 }
 
-async function refreshAll() {
-  await loadUserData();
-  await loadMovers();
-  alert("✅ Dados atualizados!");
+async function finishQuiz() {
+  document.getElementById('qview').style.display = 'none';
+  document.getElementById('doneview').style.display = 'block';
+
+  const xpEarned = score * 50;
+  document.getElementById('doneTitle').textContent = `Quiz ${currentDay} Concluído!`;
+  document.getElementById('doneSub').textContent = `Acertou ${score} de ${quizzes[currentDay].questions.length}`;
+  document.getElementById('doneXP').textContent = `+${xpEarned} XP`;
 }
 
 // Init
 async function init() {
-  const u = tg?.initDataUnsafe?.user;
+  const u = window.Telegram?.WebApp?.initDataUnsafe?.user;
   if (u) {
     document.getElementById('uname').textContent = u.first_name || 'Usuário';
     document.getElementById('uhandle').textContent = u.username ? '@' + u.username : '@usuario';
 
-    // Foto
     if (u.id) {
       fetch(`${VERCEL}/api/photo?user_id=${u.id}`)
         .then(r => r.ok ? r.blob() : null)
         .then(blob => {
           if (blob) {
-            const url = URL.createObjectURL(blob);
-            document.getElementById('av').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
+            document.getElementById('av').innerHTML = `<img src="${URL.createObjectURL(blob)}" style="width:100%;height:100%;object-fit:cover;">`;
           }
         });
     }
   }
-
-  await loadUserData();
-  await loadMovers();
 }
 
 init();
