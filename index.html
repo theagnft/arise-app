@@ -1,366 +1,115 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Arise App</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-/* CSS completo (igual ao anterior, só mantive limpo) */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;padding-bottom:72px}
-:root{--bg:#f0f2f5;--card:#fff;--text:#0a0a0a;--sub:#888;--border:#e5e5e5;--green:#22c55e;--red:#ef4444;--blue:#2563eb}
-.hd{background:#fff;padding:20px 16px 16px;text-align:center;border-bottom:1px solid var(--border)}
-.av{width:64px;height:64px;border-radius:50%;background:#e8f5ec;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#22c55e;overflow:hidden}
-.uname{font-size:18px;font-weight:700;color:var(--text)}
-.uhandle{font-size:13px;color:var(--sub);margin-top:2px}
-.ulv{display:inline-flex;align-items:center;gap:5px;margin-top:7px;background:#e8f5ec;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:#22c55e}
-.hbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 16px 0}
-.hbtn{background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px;text-align:center;font-size:13px;font-weight:500;color:var(--text);cursor:pointer}
-.pills{display:flex;background:#fff;border-bottom:1px solid var(--border);padding:0 16px}
-.pill{flex:1;padding:13px 0;text-align:center;font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;border-bottom:2.5px solid transparent}
-.pill.on{color:#22c55e;border-bottom-color:#22c55e;font-weight:600}
-.tab{display:none;padding:12px 16px}.tab.on{display:block}
-.sl{font-size:11px;font-weight:600;color:var(--sub);letter-spacing:.5px;text-transform:uppercase;margin:14px 0 8px}
-.xcard{background:#fff;border-radius:14px;padding:16px;margin-bottom:4px}
-.xrow{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:11px}
-.xv{font-size:26px;font-weight:700;color:var(--text)}
-.xrk-l{font-size:11px;color:var(--sub);text-align:right}
-.xrk-v{font-size:20px;font-weight:700;color:#f7a800;text-align:right}
-.xbar-bg{height:6px;background:#e8e8e8;border-radius:3px;overflow:hidden;margin-bottom:5px}
-.xbar-fi{height:100%;background:#22c55e;border-radius:3px;width:0;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
-.xnt{font-size:11px;color:var(--sub);margin-bottom:13px}
-.xgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.xi{background:#f7f7f7;border-radius:10px;padding:10px 11px}
-.xi-l{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px}
-.xi-v{font-size:15px;font-weight:700;color:#22c55e;margin-top:2px}
-.movers{display:flex;flex-direction:column;gap:6px}
-.mc{background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
-.mc-l{display:flex;align-items:center;gap:10px}
-.mc-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
-.mc-name{font-size:13px;font-weight:600;color:var(--text)}
-.mc-pr{font-size:11px;color:var(--sub);margin-top:1px}
-.mc-pct{font-size:14px;font-weight:700}
-.up{color:#22c55e}.dn{color:#ef4444}
-.dtabs{display:flex;gap:8px;margin-bottom:16px}
-.dt{flex:1;background:#fff;border-radius:14px;padding:13px 10px;text-align:center;cursor:pointer;border:2px solid transparent}
-.dt.on{background:#0a0a0a;border-color:#0a0a0a}
-.dt-n{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#aaa}
-.dt.on .dt-n{color:#666}
-.dt-s{font-size:13px;font-weight:700;color:var(--sub);margin-top:3px}
-.dt.on .dt-s{color:#fff}
-.dt-dot{width:7px;height:7px;border-radius:50%;margin:6px auto 0}
-.done-dot{background:#22c55e}.pend-dot{background:#e5e5e5}.active-dot{background:#2563eb}
-.qcard{background:#fff;border-radius:18px;overflow:hidden;margin-bottom:10px}
-.qimg{width:100%;height:160px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border)}
-.qtop-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px}
-.tring{width:38px;height:38px;border-radius:50%;border:2.5px solid #e5e5e5;border-top-color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#2563eb}
-.tring.done-g{border-color:#22c55e;border-top-color:#22c55e;color:#22c55e}
-.tring.done-r{border-color:#ef4444;border-top-color:#ef4444;color:#ef4444}
-.tsub{font-size:12px;color:var(--sub)}
-.xpbadge{background:#eff6ff;border-radius:20px;padding:5px 14px;font-size:13px;font-weight:700;color:#2563eb}
-.qq{font-size:17px;font-weight:700;color:var(--text);line-height:1.5;padding:0 16px 14px}
-.qopts{display:flex;flex-direction:column;gap:8px;padding:0 14px 16px}
-.qo{border-radius:14px;padding:14px 16px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:12px;border:2px solid var(--border);background:#f8f8f8;color:var(--text)}
-.ql{width:28px;height:28px;border-radius:9px;background:#e5e5e5;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#888;flex-shrink:0}
-.qo.correct{background:#0a0a0a;border-color:#0a0a0a;color:#fff}
-.qo.correct .ql{background:#22c55e;color:#fff}
-.qo.wrong{background:#fef2f2;border-color:#ef4444;color:#ef4444}
-.qo.wrong .ql{background:#ef4444;color:#fff}
-.qo.off{pointer-events:none}
-.qo.reveal-right{background:#0a0a0a;border-color:#0a0a0a;color:#fff}
-.qo.reveal-right .ql{background:#22c55e;color:#fff}
-.result-box{margin:0 14px 16px;border-radius:14px;padding:16px;display:none;align-items:center;gap:14px}
-.result-box.show{display:flex}
-.rb-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;color:#fff}
-.rb-title{font-size:16px;font-weight:800;margin-bottom:2px}
-.rb-sub{font-size:13px}
-.result-box.ok{background:#f0fdf4}
-.result-box.ok .rb-icon{background:#22c55e}
-.result-box.ok .rb-title{color:#15803d}
-.result-box.ok .rb-sub{color:#22c55e}
-.result-box.err{background:#fef2f2}
-.result-box.err .rb-icon{background:#ef4444}
-.result-box.err .rb-title{color:#b91c1c}
-.result-box.err .rb-sub{color:#ef4444}
-.qprog{display:flex;gap:5px;padding:0 16px 14px}
-.qd{flex:1;height:4px;border-radius:2px;background:#e5e5e5}
-.qd.done{background:#22c55e}.qd.active{background:#2563eb}
-.next-btn{margin:0 14px 16px;background:#0a0a0a;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;width:calc(100% - 28px);cursor:pointer;display:none}
-.next-btn.show{display:block}
-.done-card{background:#fff;border-radius:18px;padding:24px 16px;text-align:center}
-.done-ico{font-size:48px;margin-bottom:12px}
-.done-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
-.done-sub{font-size:14px;color:var(--sub);margin-bottom:20px}
-.done-xp{display:inline-block;background:#0a0a0a;color:#fff;border-radius:20px;padding:10px 28px;font-size:18px;font-weight:800}
-.done-next{font-size:12px;color:var(--sub);margin-top:10px}
-.rtimer{background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.rtl{font-size:12px;color:var(--sub)}
-.rtv{font-size:17px;font-weight:700;color:var(--text)}
-.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bcard{border-radius:12px;padding:13px;border:1px solid transparent}
-.b1{background:#fffbea;border-color:#f0d060}.b2{background:#eaf5f0;border-color:#9fe1cb}
-.b3{background:#faeaf0;border-color:#d4537e}.b4{background:#f5f5f5;border-color:#ddd}
-.bpos{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
-.b1 .bpos{color:#c49a00}.b2 .bpos{color:#0f6e56}.b3 .bpos{color:#993356}.b4 .bpos{color:#888}
-.bval{font-size:16px;font-weight:800;color:var(--text)}
-.btype{font-size:10px;color:var(--sub);margin-top:2px}
-.rlist{background:#fff;border-radius:14px;overflow:hidden}
-.ri{display:flex;align-items:center;padding:11px 14px;gap:10px;border-bottom:1px solid var(--border)}
-.ri:last-child{border-bottom:none}
-.ri.me{background:#eaf5ec}
-.rip{font-size:12px;font-weight:700;color:var(--sub);width:16px;flex-shrink:0}
-.rip.g{color:#c49a00}.rip.s{color:#888}.rip.b{color:#a0522d}
-.riav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.riname{flex:1;font-size:13px;color:var(--text);font-weight:500}
-.ri.me .riname{font-weight:700}
-.rixp{font-size:11px;color:var(--sub)}
-.riinv{font-size:11px;color:#22c55e;font-weight:600;margin-left:4px}
-.phero{background:#fff;border-radius:14px;padding:16px;margin-bottom:4px}
-.pptabs{display:flex;background:#f0f2f5;border-radius:10px;padding:3px;gap:2px}
-.ppt{flex:1;padding:6px 2px;font-size:11px;font-weight:600;color:var(--sub);border-radius:8px;cursor:pointer;text-align:center}
-.ppt.on{background:#fff;color:#22c55e;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sc{background:#fff;border-radius:12px;padding:13px}
-.sc-l{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px}
-.sc-v{font-size:22px;font-weight:700;color:var(--text);margin-top:4px}
-.sc-s{font-size:10px;color:var(--sub);margin-top:2px}
-.icard{background:#fff;border-radius:12px;padding:14px}
-.irow{background:#f0f2f5;border-radius:8px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ilink-t{font-size:12px;color:var(--sub);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cbtn{background:#22c55e;color:#fff;font-size:11px;font-weight:700;border-radius:7px;padding:6px 13px;cursor:pointer;border:none;white-space:nowrap}
-.bdg{display:inline-flex;align-items:center;background:#e8f5ec;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;color:#22c55e;margin:3px}
-.nb{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding:8px 0 12px;z-index:10}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;color:var(--sub)}
-.ni.on{color:#22c55e}
-.ni-lbl{font-size:10px;font-weight:500;color:inherit}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <title>Arise App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body { margin:0; font-family: system-ui, sans-serif; background:#f0f2f5; }
+    .hd { background:white; padding:20px; text-align:center; border-bottom:1px solid #eee; }
+    .av { width:80px; height:80px; border-radius:50%; margin:0 auto 10px; overflow:hidden; background:#22c55e; color:white; font-size:32px; display:flex; align-items:center; justify-content:center; }
+    .pills { display:flex; background:white; }
+    .pill { flex:1; padding:14px 0; text-align:center; font-weight:600; color:#666; border-bottom:3px solid transparent; }
+    .pill.on { color:#22c55e; border-bottom-color:#22c55e; }
+    .tab { display:none; padding:20px; min-height:60vh; }
+    .tab.on { display:block; }
+    .nb { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #ddd; display:flex; }
+    .ni { flex:1; padding:10px 0; text-align:center; color:#666; }
+    .ni.on { color:#22c55e; }
+  </style>
 </head>
 <body>
 
 <div class="hd">
-  <div class="av" id="av">JT</div>
-  <div class="uname" id="uname">Carregando...</div>
-  <div class="uhandle" id="uhandle">@usuario</div>
-  <div class="ulv" id="ulv">⭐ Nível 12 · 4.280 XP</div>
-  <div class="hbtns">
-    <div class="hbtn" onclick="st('r')">📊 Ranking</div>
-    <div class="hbtn" onclick="shareLink()">👥 Convidar</div>
-  </div>
+  <div class="av" id="av">AG</div>
+  <h2 id="uname">AG</h2>
+  <p id="uhandle">@agboolish</p>
+  <div style="margin:10px 0; background:#e8f5ec; display:inline-block; padding:4px 12px; border-radius:20px; font-size:14px;">⭐ Nível 2 · 680 XP</div>
 </div>
 
 <div class="pills">
-  <div class="pill on" id="ph" onclick="st('h')">Home</div>
-  <div class="pill" id="pq" onclick="st('q')">Quiz</div>
-  <div class="pill" id="pr" onclick="st('r')">Ranking</div>
-  <div class="pill" id="pp" onclick="st('p')">Perfil</div>
+  <div class="pill on" id="ph" onclick="switchTab('h')">Home</div>
+  <div class="pill" id="pq" onclick="switchTab('q')">Quiz</div>
+  <div class="pill" id="pr" onclick="switchTab('r')">Ranking</div>
+  <div class="pill" id="pp" onclick="switchTab('p')">Perfil</div>
 </div>
 
-<!-- HOME -->
 <div class="tab on" id="th">
-  <div class="sl">Seu XP esta semana</div>
-  <div class="xcard">
-    <div class="xrow">
-      <div><div style="font-size:11px;color:var(--sub);margin-bottom:3px">XP Total</div><div class="xv" id="xp-total">0</div></div>
-      <div><div class="xrk-l">Ranking semanal</div><div class="xrk-v" id="my-rank">#--</div></div>
-    </div>
-    <div class="xbar-bg"><div class="xbar-fi" id="xf"></div></div>
-    <div class="xnt" id="xp-next">--- XP para o próximo nível</div>
-    <div class="xgrid">
-      <div class="xi"><div class="xi-l">Convites</div><div class="xi-v" id="xp-invites">+0</div></div>
-      <div class="xi"><div class="xi-l">Quiz</div><div class="xi-v" id="xp-quiz">+0</div></div>
-      <div class="xi"><div class="xi-l">Streak</div><div class="xi-v" id="xp-streak">+0</div></div>
-      <div class="xi"><div class="xi-l">Dias streak</div><div class="xi-v" id="streak-days">1 dia</div></div>
-    </div>
-    <button onclick="refreshAll()" style="margin-top:12px;width:100%;padding:12px;background:#22c55e;color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer">🔄 Atualizar dados</button>
-  </div>
-  <div class="sl">Top movers · BingX Futuros</div>
-  <div class="movers" id="movers"><div style="padding:20px;text-align:center;color:#888;font-size:13px">Carregando...</div></div>
+  <h3>Home - XP Total: 680</h3>
+  <p>Ranking semanal: #7</p>
+  <button onclick="refreshAll()" style="margin-top:20px; padding:12px 24px; background:#22c55e; color:white; border:none; border-radius:12px;">Atualizar Dados</button>
 </div>
 
-<!-- QUIZ, RANKING e PERFIL (mantidos iguais) -->
-<!-- ... (o resto do HTML é o mesmo que eu te mandei antes, só não repeti aqui pra não ficar gigante) ... -->
+<div class="tab" id="tq">
+  <h3>Quiz</h3>
+  <p>Quiz 1 e Quiz 2 aparecerão aqui em breve.</p>
+</div>
+
+<div class="tab" id="tr">
+  <h3>Ranking Semanal</h3>
+  <p>Ranking completo virá aqui.</p>
+</div>
+
+<div class="tab" id="tp">
+  <h3>Perfil</h3>
+  <p>Seu link de convite e conquistas.</p>
+</div>
 
 <div class="nb">
-  <div class="ni on" id="nh" onclick="st('h')"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 9L10 3L17 9V17H13V12H7V17H3V9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="ni-lbl">Home</span></div>
-  <div class="ni" id="nq" onclick="st('q')"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 8C8 6.9 8.9 6 10 6C11.1 6 12 6.9 12 8C12 9.3 11 9.8 10.5 10.3C10.2 10.6 10 11 10 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="14" r=".9" fill="currentColor"/></svg><span class="ni-lbl">Quiz</span></div>
-  <div class="ni" id="nr" onclick="st('r')"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 17V12M8 17V8M12 17V10M16 17V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="ni-lbl">Ranking</span></div>
-  <div class="ni" id="np" onclick="st('p')"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 17C4 14 6.7 12 10 12C13.3 12 16 14 16 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="ni-lbl">Perfil</span></div>
+  <div class="ni on" id="nh" onclick="switchTab('h')">🏠</div>
+  <div class="ni" id="nq" onclick="switchTab('q')">❓</div>
+  <div class="ni" id="nr" onclick="switchTab('r')">🏆</div>
+  <div class="ni" id="np" onclick="switchTab('p')">👤</div>
 </div>
 
 <script>
-// ==================== CONFIG ====================
-const VERCEL = 'https://arise-app-six.vercel.app';
-let ME = {};
-let curDay = 1, curQ = 0, score = {1:0, 2:0};
-let qtimer = null, tv = 30;
-const letters = ['A','B','C','D'];
-
-// ==================== QUIZZES COMPLETOS ====================
-const quizzes = {1:{xp:50,perguntas:[/* 6 perguntas com SVG completo */] },2:{xp:50,perguntas:[/* 6 perguntas com SVG completo */] }};
-
-// ==================== FUNÇÕES SVG (todas restauradas) ====================
-function drawHammer(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">BTC/USDT · 4H</text><line x1="50" y1="120" x2="50" y2="50" stroke="#ef4444" stroke-width="1.5"/><rect x="43" y="72" width="14" height="28" fill="#ef4444" rx="2"/><line x1="50" y1="120" x2="50" y2="135" stroke="#ef4444" stroke-width="1.5"/>`;}
-function drawSupport(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">SOL/USDT · 1D</text><line x1="20" y1="100" x2="320" y2="100" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6,4"/><text x="325" y="104" font-size="9" fill="#2563eb" font-weight="700">SUP</text>`;}
-function drawUptrend(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">ETH/USDT · 1D</text><line x1="30" y1="140" x2="310" y2="40" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="5,4" opacity=".6"/>`;}
-function drawVolume(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">BNB/USDT · Volume</text><rect x="30" y="90" width="18" height="50" fill="#22c55e" rx="2" opacity=".4"/>`;}
-function drawRSI(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">RSI · 14</text><line x1="20" y1="50" x2="320" y2="50" stroke="#ef4444" stroke-width="1" stroke-dasharray="5,4" opacity=".6"/>`;}
-function drawMA(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">BTC/USDT · MM 200</text><polyline points="20,130 60,120 100,125 140,115 180,110 220,100 260,85 300,75" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6,3"/>`;}
-function drawFib(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">ETH/USDT · Fibonacci</text><line x1="20" y1="118" x2="310" y2="118" stroke="#ef4444" stroke-width="2"/>`;}
-function drawFlag(s){s.innerHTML=`<rect x="0" y="0" width="340" height="160" fill="#f8f8f8"/><text x="170" y="18" text-anchor="middle" font-size="10" fill="#bbb" font-family="monospace" font-weight="700">AVAX/USDT · 4H</text><polyline points="30,140 80,100 100,95 120,110 140,90 160,105 180,85 190,78" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/>`;}
-
-quizzes[1].perguntas = [
-  {pergunta:'Qual padrão de candle indica reversão de alta após tendência de baixa?',opcoes:['Doji','Evening Star','Hammer','Shooting Star'],certa:2,svg:drawHammer},
-  {pergunta:'O que o gráfico abaixo está demonstrando?',opcoes:['Rompimento de resistência','Teste de suporte','Double Top','Consolidação lateral'],certa:1,svg:drawSupport},
-  {pergunta:'Qual o padrão identificado no gráfico?',opcoes:['Tendência de alta','Tendência de baixa','Mercado lateral','Expansão de volatilidade'],certa:0,svg:drawUptrend},
-  {pergunta:'O volume no rompimento indica:',opcoes:['Fraqueza compradora','Confirmação do movimento','Distribuição','Fakeout'],certa:1,svg:drawVolume},
-  {pergunta:'Qual indicador é mais usado para identificar sobrecompra/sobrevenda?',opcoes:['MACD','RSI','Bollinger Bands','Ichimoku'],certa:1,svg:drawRSI},
-  {pergunta:'O que significa Golden Cross?',opcoes:['Média curta cruza média longa para cima','Média curta cruza média longa para baixo','Suporte rompido','Resistência rompida'],certa:0,svg:drawMA}
-];
-quizzes[2].perguntas = [
-  {pergunta:'O RSI em 78 indica que o ativo está:',opcoes:['Sobrevendido','Neutro','Sobrecomprado','Em tendência forte'],certa:2,svg:drawRSI},
-  {pergunta:'Quando o preço cruza a média móvel de baixo pra cima, temos:',opcoes:['Sinal de venda','Golden Cross','Death Cross','Divergência'],certa:1,svg:drawMA},
-  {pergunta:'O nível de Fibonacci mais importante como suporte é:',opcoes:['23.6%','50%','61.8%','78.6%'],certa:2,svg:drawFib},
-  {pergunta:'O padrão gráfico abaixo é conhecido como:',opcoes:['Triângulo ascendente','Bull Flag','Canal de baixa','Cunha'],certa:1,svg:drawFlag},
-  {pergunta:'Qual é o principal risco do trading com alavancagem?',opcoes:['Baixa volatilidade','Liquidação','Ganho garantido','Menos emoção'],certa:1,svg:drawVolume},
-  {pergunta:'O que significa "HODL" no universo crypto?',opcoes:['Vender rápido','Manter a longo prazo','Fazer day trade','Usar stop loss'],certa:1,svg:drawHammer}
-];
-
-// ==================== INIT ====================
 const tg = window.Telegram?.WebApp;
-if (tg) { tg.ready(); tg.expand(); }
-
-async function init() {
-  try {
-    const u = tg?.initDataUnsafe?.user;
-    if (!u?.id) return;
-
-    const uid = u.id;
-    const ref = new URLSearchParams(window.location.search).get('ref') || tg.initDataUnsafe?.start_param || null;
-
-    // Preenche dados básicos imediatamente
-    document.getElementById('uname').textContent = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Usuário';
-    document.getElementById('uhandle').textContent = u.username ? `@${u.username}` : '@usuario';
-    document.getElementById('av').textContent = ((u.first_name||'?')[0] + (u.last_name||'')[0]).toUpperCase();
-
-    // Foto
-    fetch(`${VERCEL}/api/photo?user_id=${uid}`).then(r => r.ok ? r.blob() : null).then(blob => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        document.getElementById('av').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
-      }
-    });
-
-    await loadUserData(uid, ref);
-  } catch(e) { console.error("Erro init:", e); }
+if (tg) {
+  tg.ready();
+  tg.expand();
+  console.log("✅ Telegram WebApp carregado");
 }
 
-async function loadUserData(uid, ref = null) {
-  try {
-    const params = new URLSearchParams({user_id: uid});
-    if (ref) params.set('ref', ref.replace('ref_',''));
+function switchTab(tab) {
+  console.log("🔄 Trocando para aba:", tab);
+  
+  // Remove 'on' de todas as abas e nav
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
 
-    const r = await fetch(`${VERCEL}/api/user?${params}`);
-    const d = await r.json();
-
-    if (d.ok) {
-      ME = d.user || {};
-      ME.quiz_done = d.quiz_done || {1:false,2:false};
-      ME.rank = d.rank;
-
-      updateHome();
-      updateRanking(d.ranking || []);
-      updateQuizStatus();
-    }
-  } catch(e) { console.error("Erro loadUserData:", e); }
-}
-
-function updateHome() {
-  const xp = ME.xp || 0;
-  const lvl = Math.floor(xp / 500) + 1;
-  const xpInLvl = xp % 500;
-  const pct = (xpInLvl / 500 * 100).toFixed(1);
-
-  document.getElementById('xp-total').textContent = xp.toLocaleString('pt-BR');
-  document.getElementById('my-rank').textContent = `#${ME.rank || '--'}`;
-  document.getElementById('ulv').textContent = `⭐ Nível ${lvl} · ${xp.toLocaleString('pt-BR')} XP`;
-  document.getElementById('xp-next').textContent = `${500 - xpInLvl} XP para o Nível ${lvl + 1}`;
-  document.getElementById('xf').style.width = `${pct}%`;
-
-  document.getElementById('xp-invites').textContent = `+${ME.xp_invites || 0}`;
-  document.getElementById('xp-quiz').textContent = `+${ME.xp_quiz || 0}`;
-  document.getElementById('xp-streak').textContent = `+${ME.xp_streak || 0}`;
-  document.getElementById('streak-days').textContent = `${ME.streak || 1} dias`;
-}
-
-function updateRanking(ranking) {
-  const list = document.getElementById('rlist-dynamic');
-  if (!ranking.length) return;
-  const colors = ['#c49a00','#888','#a0522d'];
-  list.innerHTML = ranking.map((r,i) => {
-    const isMe = ME.id === r.id;
-    const initials = (r.first_name || 'U')[0].toUpperCase();
-    const col = colors[i] || '#bbb';
-    const ripClass = i===0?'g':i===1?'s':i===2?'b':'';
-    return `<div class="ri${isMe?' me':''}"><div class="rip ${ripClass}">${i+1}</div><div class="riav" style="background:${col}">${initials}</div><div class="riname">${r.username?'@'+r.username:r.first_name||'user'}${isMe?' (você)':''}</div><div class="rixp">${(r.xp||0).toLocaleString('pt-BR')}</div><div class="riinv">${r.invite_count||0} inv</div></div>`;
-  }).join('');
-}
-
-function updateQuizStatus() {
-  if (ME.quiz_done[1]) { document.getElementById('d1s').textContent = 'Concluído'; document.getElementById('d1dot').className = 'dt-dot done-dot'; }
-  if (ME.quiz_done[2]) { document.getElementById('d2s').textContent = 'Concluído'; document.getElementById('d2dot').className = 'dt-dot done-dot'; }
+  // Ativa a nova aba
+  document.getElementById(tab + 'h' || 'th').classList.add('on'); // fallback
+  document.getElementById('p' + tab).classList.add('on');
+  document.getElementById('n' + tab).classList.add('on');
 }
 
 async function refreshAll() {
-  if (ME.id) await loadUserData(ME.id);
+  alert("🔄 Atualizando dados...");
+  // Aqui vamos colocar a chamada real depois que as abas funcionarem
 }
 
-// ==================== NAV ====================
-let cur = 'h';
-const tmap = {h:'th',q:'tq',r:'tr',p:'tp'}, nmap = {h:'nh',q:'nq',r:'nr',p:'np'}, pmap = {h:'ph',q:'pq',r:'pr',p:'pp'};
-function st(t) {
-  document.getElementById(tmap[cur]).classList.remove('on');
-  document.getElementById(nmap[cur]).classList.remove('on');
-  document.getElementById(pmap[cur]).classList.remove('on');
-  cur = t;
-  document.getElementById(tmap[t]).classList.add('on');
-  document.getElementById(nmap[t]).classList.add('on');
-  document.getElementById(pmap[t]).classList.add('on');
-}
-
-// ==================== SHARE ====================
-function shareLink() {
-  const link = document.getElementById('invite-link').textContent;
-  if (tg?.openTelegramLink) tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=Entre no Arise App!`);
-  else navigator.clipboard.writeText(link);
-}
-function cpy() {
-  const btn = document.getElementById('cbtn');
-  navigator.clipboard.writeText(document.getElementById('invite-link').textContent);
-  btn.textContent = 'Copiado!'; setTimeout(()=>btn.textContent='Copiar',1500);
-}
-
-// ==================== MOVERS ====================
-async function loadMovers() {
-  const el = document.getElementById('movers');
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-size:13px">Carregando...</div>';
-  try {
-    const r = await fetch(`${VERCEL}/api/prices`);
-    const d = await r.json();
-    if (!d.ok) throw new Error();
-    // (restante do código de movers igual ao anterior)
-  } catch(e) {
-    el.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-size:13px">Erro ao carregar preços</div>';
+// Inicializa foto e nome
+window.onload = () => {
+  const u = tg?.initDataUnsafe?.user;
+  if (u) {
+    document.getElementById('uname').textContent = u.first_name || 'Usuário';
+    document.getElementById('uhandle').textContent = u.username ? '@' + u.username : '';
+    
+    // Foto
+    if (u.id) {
+      fetch('https://arise-app-six.vercel.app/api/photo?user_id=' + u.id)
+        .then(r => r.ok ? r.blob() : null)
+        .then(blob => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            document.getElementById('av').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
+          }
+        });
+    }
   }
-}
-
-// ==================== QUIZ (mantido igual ao anterior) ====================
-// ... (initQ, answ, timeOut, showResult, nextQ, finishQuiz, setDay, showDoneView) ...
-
-// ==================== START ====================
-loadMovers();
-init();
-
+};
 </script>
 </body>
 </html>
